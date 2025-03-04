@@ -12,7 +12,7 @@ public class Player extends Entity {
     private BufferedImage[] walkingFrames;
     private int currentFrame = 0;
     private long lastFrameTime = 0;
-    private static final int FRAME_DELAY = 100; // milliseconds between frames
+    private static final int FRAME_DELAY = 100;
     private boolean isMoving = false;
 
     protected ArrayList<Weapon> weapons = new ArrayList<Weapon>();
@@ -20,12 +20,14 @@ public class Player extends Entity {
     public boolean facingLeft = false;
     protected double health = PLAYER_HEALTH;
 
-    public Player(int x, int y) {
+    public Player(int x, int y, int characterNumber) {
         this.x = x;
         this.y = y;
         this.width = PLAYER_WIDTH;
         this.height = PLAYER_HEIGHT;
-        this.appearanceImagePath = "assets/Player/walking/char1_walking_01.png";
+        String charNumString = characterNumber < 10 ? "0" + characterNumber : String.valueOf(characterNumber);
+        this.appearanceImagePath = "assets/Player/char_" + charNumString + "/walking/walking_01.png";
+        String walkingDirPath = "assets/Player/char_" + charNumString + "/walking";
         setImage(new File(appearanceImagePath));
         weapons.add(new Pistol());
         weapons.add(new Rifle());
@@ -34,37 +36,36 @@ public class Player extends Entity {
         weapons.add(new RocketLauncher());
         currentWeapon = weapons.get(0);
 
-        loadWalkingFrames();
+        loadWalkingFrames(walkingDirPath);
     }
     
-    private void loadWalkingFrames() {
+    private void loadWalkingFrames(String walkingDirPath) {
         try {
-            File walkingDir = new File("assets/Player/walking");
+            File walkingDir = new File(walkingDirPath);
             if (walkingDir.exists() && walkingDir.isDirectory()) {
                 File[] files = walkingDir.listFiles((dir, name) -> 
                     name.toLowerCase().endsWith(".png"));
-                
                 if (files != null && files.length > 0) {
                     walkingFrames = new BufferedImage[files.length];
                     for (int i = 0; i < files.length; i++) {
                         walkingFrames[i] = ImageIO.read(files[i]);
                     }
                 } else {
-                    System.err.println("No PNG files found in walking directory");
+                    System.err.println("No PNG files found in walking directory: " + walkingDirPath);
                 }
             } else {
-                System.err.println("Walking animation directory not found");
+                System.err.println("Walking animation directory not found: " + walkingDirPath);
             }
         } catch (Exception e) {
             System.err.println("Error loading walking animation: " + e.getMessage());
             e.printStackTrace();
         }
     }
-    
+
     public void setMoving(boolean moving) {
         this.isMoving = moving;
     }
-    
+
     public void updateAnimation() {
         if (isMoving && walkingFrames != null && walkingFrames.length > 0) {
             long currentTime = System.currentTimeMillis();

@@ -7,7 +7,7 @@ public class GameFrame extends JFrame {
     public static final int HEIGHT = 720;
 
     public GameFrame() {
-        setTitle("My Top Down Shooter Game");
+        setTitle("ZombieShot");
         setResizable(false);
         
         // Use a layered pane for overlays

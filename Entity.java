@@ -49,6 +49,11 @@ public class Entity {
         }
     }
 
+    public void setImage(BufferedImage image) {
+        this.image = image;
+        calculatePreservedRatio();
+    }
+
     public void setTargetWidth(int width) {
         this.width = width;
         calculatePreservedRatio();

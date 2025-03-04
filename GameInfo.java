@@ -27,9 +27,10 @@ public class GameInfo {
     protected int score = 0;
     protected int zombiesKilled = 0;
     protected int zombiesSpawned = 0;
+    protected int selectedCharacter = 1;
 
     public GameInfo() {
-        player = new Player(0, 0);
+        player = new Player(0, 0, selectedCharacter);
     }
 
     public void updateZombiesRemaining(int count) {
@@ -69,8 +70,13 @@ public class GameInfo {
             gameOverPanel.setVisible(true);
         }
     }
+
+    public void setSelectedCharacter(int characterNumber) {
+        this.selectedCharacter = characterNumber;
+    }
     
     public void restartGame() {
+        player = new Player(0, 0, selectedCharacter);
         gamePanel.centerplayer();
 
         gamePanel.moveUp = false;
