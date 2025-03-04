@@ -576,16 +576,16 @@ public class GamePanel extends JPanel implements ActionListener {
 
         for (Drop drop : gameInfo.drops) {
             if (!drop.isCollected() && gameInfo.player.getBounds().intersects(drop.getBounds())) {
-                // player collected the ammo drop
+                // Player collected the ammo drop
                 drop.collect();
                 dropsToRemove.add(drop);
 
                 if (drop instanceof AmmoDrop) {
                     AmmoDrop weaponDrop = (AmmoDrop)drop;
-                    // Add ammo to drop's source weapon
+
                     int ammoToAdd = weaponDrop.getAmmoAmount();
                     Weapon sourceWeapon = weaponDrop.getSourceWeapon();
-                    // Check if the player has this type of weapon
+
                     for (Weapon playerWeapon : gameInfo.player.weapons) {
                         if (playerWeapon != null && playerWeapon.getClass().equals(sourceWeapon.getClass())) {
                             if (playerWeapon.currentTotalAmmo <= Integer.MAX_VALUE - ammoToAdd) {
@@ -633,7 +633,7 @@ public class GamePanel extends JPanel implements ActionListener {
 
     private void applyBlastDamageToZombies(List<Zombie> zombiesToRemove, Bullet bullet, Zombie sourceZombie, double blastRadius) {
         for (Zombie targetZombie : gameInfo.zombies) {
-            if (targetZombie == sourceZombie || zombiesToRemove.contains(targetZombie)) {
+            if (zombiesToRemove.contains(targetZombie)) {
                 continue;
             }
             double dx = targetZombie.getCenterX() - sourceZombie.getCenterX();
