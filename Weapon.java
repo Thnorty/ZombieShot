@@ -1,4 +1,6 @@
 public class Weapon extends Entity {
+    private static final int WEAPON_SIZE = 64;
+
     protected int shotsPerMinute;
     protected double shootingAngle;
     protected double damage;
@@ -15,8 +17,8 @@ public class Weapon extends Entity {
     public Weapon(int x, int y, int shotsPerMinute, double shootingAngle, double damage, int ammo, int totalAmmo) {
         this.x = x;
         this.y = y;
-        this.width = 96;
-        this.height = 96;
+        this.width = WEAPON_SIZE;
+        this.height = WEAPON_SIZE;
         this.shotsPerMinute = shotsPerMinute;
         this.shootingAngle = shootingAngle;
         this.damage = damage;
