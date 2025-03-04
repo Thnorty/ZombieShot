@@ -1,10 +1,19 @@
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.util.ArrayList;
+import javax.imageio.ImageIO;
 
 public class Player extends Entity {
     private static final int PLAYER_WIDTH = 64;
     private static final int PLAYER_HEIGHT = 64;
     public static final int PLAYER_HEALTH = 100;
+
+    // Animation fields
+    private BufferedImage[] walkingFrames;
+    private int currentFrame = 0;
+    private long lastFrameTime = 0;
+    private static final int FRAME_DELAY = 100; // milliseconds between frames
+    private boolean isMoving = false;
 
     protected ArrayList<Weapon> weapons = new ArrayList<Weapon>();
     protected Weapon currentWeapon;
@@ -16,7 +25,7 @@ public class Player extends Entity {
         this.y = y;
         this.width = PLAYER_WIDTH;
         this.height = PLAYER_HEIGHT;
-        this.appearanceImagePath = "assets/Player/player.png";
+        this.appearanceImagePath = "assets/Player/walking/char1_walking_01.png";
         setImage(new File(appearanceImagePath));
         weapons.add(new Pistol());
         weapons.add(new Rifle());
@@ -24,6 +33,53 @@ public class Player extends Entity {
         weapons.add(new Sniper());
         weapons.add(new RocketLauncher());
         currentWeapon = weapons.get(0);
+
+        loadWalkingFrames();
+    }
+    
+    private void loadWalkingFrames() {
+        try {
+            File walkingDir = new File("assets/Player/walking");
+            if (walkingDir.exists() && walkingDir.isDirectory()) {
+                File[] files = walkingDir.listFiles((dir, name) -> 
+                    name.toLowerCase().endsWith(".png"));
+                
+                if (files != null && files.length > 0) {
+                    walkingFrames = new BufferedImage[files.length];
+                    for (int i = 0; i < files.length; i++) {
+                        walkingFrames[i] = ImageIO.read(files[i]);
+                    }
+                } else {
+                    System.err.println("No PNG files found in walking directory");
+                }
+            } else {
+                System.err.println("Walking animation directory not found");
+            }
+        } catch (Exception e) {
+            System.err.println("Error loading walking animation: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+    
+    public void setMoving(boolean moving) {
+        this.isMoving = moving;
+    }
+    
+    public void updateAnimation() {
+        if (isMoving && walkingFrames != null && walkingFrames.length > 0) {
+            long currentTime = System.currentTimeMillis();
+            if (currentTime - lastFrameTime > FRAME_DELAY) {
+                currentFrame = (currentFrame + 1) % walkingFrames.length;
+                image = walkingFrames[currentFrame];
+                lastFrameTime = currentTime;
+            }
+        } else {
+            // Reset to standing frame when not moving
+            if (walkingFrames == null || currentFrame != 0) {
+                image = walkingFrames[0];
+                currentFrame = 0;
+            }
+        }
     }
 
     public void reload() {

@@ -457,6 +457,11 @@ public class GamePanel extends JPanel implements ActionListener {
         if (moveLeft) horizontalMovement -= gameInfo.PLAYER_SPEED;
         if (moveRight) horizontalMovement += gameInfo.PLAYER_SPEED;
 
+        // Set player animation state based on movement
+        boolean isMoving = (horizontalMovement != 0 || verticalMovement != 0);
+        gameInfo.player.setMoving(isMoving);
+        gameInfo.player.updateAnimation();
+
         // Normalize the direction vector
         double movementLength = Math.sqrt(horizontalMovement * horizontalMovement + verticalMovement * verticalMovement);
         if (movementLength > 0) {
