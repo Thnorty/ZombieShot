@@ -533,8 +533,7 @@ public class GamePanel extends JPanel implements ActionListener {
                 dy /= length;
             }
     
-            double distanceToplayer = Math.sqrt(dx * dx + dy * dy);
-            distanceToplayer = length;
+            double distanceToplayer = length;
 
             // Check if the zombie can hit the player
             if (distanceToplayer < zombie.attackRange && zombie.canAttack()) {
@@ -558,15 +557,13 @@ public class GamePanel extends JPanel implements ActionListener {
                 ReptileZombie reptileZombie = (ReptileZombie)zombie;
                 
                 if (distanceToplayer < 200) {
-                    if (!reptileZombie.willJump && reptileZombie.canJump()) {
+                    if (!reptileZombie.isJumping && reptileZombie.canJump()) {
                         reptileZombie.prepareJump(charCenterX, charCenterY);
                     }
                 }
 
-                if (reptileZombie.willJump) {
-                    reptileZombie.x += reptileZombie.jumpDirectionX * zombie.moveSpeed * ReptileZombie.JUMP_SPEED;
-                    reptileZombie.y += reptileZombie.jumpDirectionY * zombie.moveSpeed * ReptileZombie.JUMP_SPEED;
-                    reptileZombie.willJump = false;
+                if (reptileZombie.isJumping) {
+                    reptileZombie.updateJump();
                 } else {
                     zombie.x += dx * zombie.moveSpeed;
                     zombie.y += dy * zombie.moveSpeed;

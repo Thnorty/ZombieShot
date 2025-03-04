@@ -1,10 +1,12 @@
 public class ReptileZombie extends Zombie {
-    private static final long JUMP_COOLDOWN = 3000;
-    protected static final double JUMP_SPEED = 100.0;
+    private static final long JUMP_COOLDOWN = 5000;
+    protected static final double JUMP_SPEED = 10;
+    private static final double JUMP_DISTANCE = 200;
 
-    protected boolean willJump = false;
+    protected boolean isJumping = false;
     protected double jumpDirectionX = 0;
     protected double jumpDirectionY = 0;
+    protected double jumpDistanceTraveled = 0;
     private long lastJumpTime = 0;
 
     public ReptileZombie(int x, int y) {
@@ -34,12 +36,26 @@ public class ReptileZombie extends Zombie {
             jumpDirectionY = -dx;
         }
         
-        willJump = true;
+        isJumping = true;
+        jumpDistanceTraveled = 0;
         lastJumpTime = System.currentTimeMillis();
     }
 
     // Check if enough time has passed to jump again
     public boolean canJump() {
-        return System.currentTimeMillis() - lastJumpTime >= JUMP_COOLDOWN;
+        return !isJumping && System.currentTimeMillis() - lastJumpTime >= JUMP_COOLDOWN;
+    }
+
+    public void updateJump() {
+        double moveAmount = moveSpeed * JUMP_SPEED;
+        
+        x += jumpDirectionX * moveAmount;
+        y += jumpDirectionY * moveAmount;
+        
+        jumpDistanceTraveled += moveAmount;
+        
+        if (jumpDistanceTraveled >= JUMP_DISTANCE) {
+            isJumping = false;
+        }
     }
 }

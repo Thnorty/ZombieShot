@@ -90,6 +90,7 @@ public class GameInfo {
         currentWave = 1;
         zombiesKilled = 0;
         zombiesSpawned = 0;
+        zombiesKilledLastWave = 0;
         zombies.clear();
         bullets.clear();
         drops.clear();
