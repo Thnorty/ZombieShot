@@ -354,10 +354,19 @@ public class GamePanel extends JPanel implements ActionListener {
             gameInfo.player.currentWeapon.x = rotatedGunX;
             gameInfo.player.currentWeapon.y = gameInfo.player.getCenterY() - gameInfo.player.currentWeapon.height/2;
             
-            // Apply rotation for rendering
+            boolean facingLeft = mouseX < gameInfo.player.getCenterX();
+            if (facingLeft) {
+                angleRad += Math.toRadians(-90);
+            }
             gunTransform.rotate(angleRad, playerCenterX, playerCenterY);
-            g2d.setTransform(gunTransform);
             
+            if (facingLeft) {
+                gunTransform.scale(1, -1);
+                gunTransform.translate(0, -2 * gameInfo.player.currentWeapon.y - gameInfo.player.currentWeapon.height);
+            }
+
+            g2d.setTransform(gunTransform);
+
             // Draw the gun
             g2d.drawImage(gameInfo.player.currentWeapon.image, (int)gameInfo.player.currentWeapon.x, (int)gameInfo.player.currentWeapon.y, 
                          gameInfo.player.currentWeapon.width, gameInfo.player.currentWeapon.height, null);
