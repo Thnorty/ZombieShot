@@ -27,15 +27,32 @@ public class Player extends Entity {
     }
 
     public void reload() {
-        if (currentWeapon.currentTotalAmmo > 0) {
-            int ammoNeeded = currentWeapon.ammo - currentWeapon.currentAmmo;
-            if (currentWeapon.currentTotalAmmo >= ammoNeeded) {
-                currentWeapon.currentAmmo += ammoNeeded;
-                currentWeapon.currentTotalAmmo -= ammoNeeded;
-            } else {
-                currentWeapon.currentAmmo += currentWeapon.currentTotalAmmo;
-                currentWeapon.currentTotalAmmo = 0;
-            }
+        Weapon currentWeapon = this.currentWeapon;
+        
+        if (!currentWeapon.isReloading && currentWeapon.currentAmmo < currentWeapon.ammo && currentWeapon.currentTotalAmmo > 0) {
+            currentWeapon.isReloading = true;
+            currentWeapon.canShoot = true;
+            currentWeapon.reloadStartTime = System.currentTimeMillis();
+            
+            new Thread(() -> {
+                try {
+                    Thread.sleep(currentWeapon.reloadTimeMs);
+                    
+                    int ammoNeeded = currentWeapon.ammo - currentWeapon.currentAmmo;
+                    if (currentWeapon.currentTotalAmmo >= ammoNeeded) {
+                        currentWeapon.currentAmmo += ammoNeeded;
+                        currentWeapon.currentTotalAmmo -= ammoNeeded;
+                    } else {
+                        currentWeapon.currentAmmo += currentWeapon.currentTotalAmmo;
+                        currentWeapon.currentTotalAmmo = 0;
+                    }
+                    
+                    currentWeapon.isReloading = false;
+                    currentWeapon.canShoot = true;
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }).start();
         }
     }
 

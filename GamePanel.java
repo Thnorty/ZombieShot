@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.Color;
 
 public class GamePanel extends JPanel implements ActionListener {
@@ -237,6 +238,10 @@ public class GamePanel extends JPanel implements ActionListener {
     private void shootBullet() {
         Weapon currentWeapon = gameInfo.player.currentWeapon;
 
+        if (currentWeapon.isReloading) {
+            return;
+        }
+
         currentWeapon.currentAmmo -= 1;
         if (currentWeapon.currentAmmo < 0) {
             currentWeapon.currentAmmo = 0;
@@ -323,6 +328,8 @@ public class GamePanel extends JPanel implements ActionListener {
             g2d.setColor(Color.RED);
             g2d.fillRect((int)gameInfo.player.x, (int)gameInfo.player.y, 50, 50);
         }
+        drawCooldownBar(g2d);
+        drawReloadingBar(g2d);
 
         gameInfo.player.updateGunPosition();
         if (gameInfo.player.currentWeapon != null && gameInfo.player.currentWeapon.image != null) {
@@ -719,5 +726,70 @@ public class GamePanel extends JPanel implements ActionListener {
         // Draw border
         g2d.setColor(Color.BLACK);
         g2d.drawRect(barX, barY, barWidth, barHeight);
+    }
+
+    private void drawCooldownBar(Graphics2D g2d) {
+        Weapon currentWeapon = gameInfo.player.currentWeapon;
+        if (!currentWeapon.isReloading && !currentWeapon.canShoot() && currentWeapon.currentAmmo > 0) {
+            long currentTime = System.currentTimeMillis();
+            long lastShotTime = currentWeapon.lastShotTime;
+            long cooldownTime = 60000 / currentWeapon.shotsPerMinute;
+
+            double elapsedTime = currentTime - lastShotTime;
+            double cooldownPercentage = Math.min(1.0, elapsedTime / cooldownTime);
+
+            int barWidth = gameInfo.player.width;
+            int barHeight = 5;
+            int barX = (int)gameInfo.player.x;
+            int barY = (int)gameInfo.player.y - 15;
+            
+            g2d.setColor(Color.DARK_GRAY);
+            g2d.fillRect(barX, barY, barWidth, barHeight);
+            
+            int filledWidth = (int)(barWidth * cooldownPercentage);
+            
+            g2d.setColor(new Color(30, 144, 255));
+            g2d.fillRect(barX, barY, filledWidth, barHeight);
+            
+            g2d.setColor(Color.BLACK);
+            g2d.drawRect(barX, barY, barWidth, barHeight);
+        }
+    }
+
+    private void drawReloadingBar(Graphics2D g2d) {
+        Weapon currentWeapon = gameInfo.player.currentWeapon;
+        
+        // Only show when player is reloading
+        if (currentWeapon.isReloading) {
+            long currentTime = System.currentTimeMillis();
+            long reloadStartTime = currentWeapon.reloadStartTime;
+            long reloadTime = currentWeapon.reloadTimeMs;
+
+            double elapsedTime = currentTime - reloadStartTime;
+            double reloadPercentage = Math.min(1.0, elapsedTime / reloadTime);
+
+            int barWidth = gameInfo.player.width;
+            int barHeight = 5;
+            int barX = (int)gameInfo.player.x;
+            int barY = (int)gameInfo.player.y - 25; // Position above cooldown bar
+            
+            // Draw background (empty reload bar)
+            g2d.setColor(Color.DARK_GRAY);
+            g2d.fillRect(barX, barY, barWidth, barHeight);
+            
+            // Draw filled portion
+            int filledWidth = (int)(barWidth * reloadPercentage);
+            g2d.setColor(Color.YELLOW); // Yellow for reloading
+            g2d.fillRect(barX, barY, filledWidth, barHeight);
+            
+            // Draw border
+            g2d.setColor(Color.BLACK);
+            g2d.drawRect(barX, barY, barWidth, barHeight);
+            
+            // Optionally display "RELOADING" text
+            g2d.setColor(Color.WHITE);
+            g2d.setFont(new Font("Arial", Font.BOLD, 10));
+            g2d.drawString("RELOADING", barX + 2, barY - 2);
+        }
     }
 }

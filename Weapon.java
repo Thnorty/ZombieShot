@@ -8,6 +8,9 @@ public class Weapon extends Entity {
     protected int currentTotalAmmo;
     protected boolean canShoot = true;
     protected long lastShotTime = 0;
+    protected boolean isReloading = false;
+    protected long reloadStartTime = 0;
+    protected long reloadTimeMs = 2000;
 
     public Weapon(int x, int y, int shotsPerMinute, double shootingAngle, double damage, int ammo, int totalAmmo) {
         this.x = x;
@@ -31,7 +34,7 @@ public class Weapon extends Entity {
                 canShoot = true;
             }
         }
-        return canShoot && currentAmmo > 0;
+        return canShoot && currentAmmo > 0 && !isReloading;
     }
 
     public void shoot() {
