@@ -1,4 +1,5 @@
 import java.io.File;
+import java.awt.Rectangle;
 
 public class Zombie extends Entity {
     protected static final int ZOMBIE_WIDTH = 96;
@@ -44,5 +45,13 @@ public class Zombie extends Entity {
             canAttack = false;
             lastAttackTime = System.currentTimeMillis();
         }
+    }
+
+    public Rectangle getBounds() {
+        int reducedWidth = width / 2;
+        int reducedHeight = height / 2;
+        int centerX = (int)x + (width - reducedWidth) / 2;
+        int centerY = (int)y + (height - reducedHeight) / 2;
+        return new Rectangle(centerX, centerY, reducedWidth, reducedHeight);
     }
 }

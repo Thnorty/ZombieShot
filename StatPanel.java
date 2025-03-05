@@ -40,8 +40,6 @@ public class StatPanel extends JPanel {
         this.gameInfo = gameInfo;
         setBounds(0, 0, WIDTH, HEIGHT);
         setBackground(Color.BLACK);
-        // setBackground(new Color(80, 0, 0, 0));
-        // setOpaque(false);
         setLayout(null);
 
         weaponNameLabel = new JLabel(getWeaponName(gameInfo.player.currentWeapon));
