@@ -23,21 +23,25 @@ public class StatPanel extends JPanel {
     private String ammoClipText = "Ammo Clip: ";
     private String waveText = "Wave: ";
     private String zombiesRemainingText = "Zombies: ";
+    private String scoreText = "Score: ";
     private String healthText = "Health: ";
     private JLabel ammoLabel;
     private JLabel ammoClipLabel;
     private JLabel waveLabel;
     private JLabel zombiesRemainingLabel;
+    private JLabel scoreLabel;
+    private JProgressBar healthBar;
     private JLabel healthLabel;
     private JLabel healthPercentLabel;
     private JLabel weaponNameLabel;
     private JLabel weaponImageLabel;
-    private JProgressBar healthBar;
 
     public StatPanel(GameInfo gameInfo) {
         this.gameInfo = gameInfo;
         setBounds(0, 0, WIDTH, HEIGHT);
         setBackground(Color.BLACK);
+        // setBackground(new Color(80, 0, 0, 0));
+        // setOpaque(false);
         setLayout(null);
 
         weaponNameLabel = new JLabel(getWeaponName(gameInfo.player.currentWeapon));
@@ -45,7 +49,7 @@ public class StatPanel extends JPanel {
         weaponNameLabel.setFont(new Font("Courier New", Font.BOLD, 20));
         weaponNameLabel.setBounds(10, 10, 200, 25);
         add(weaponNameLabel);
-        
+
         weaponImageLabel = new JLabel();
         updateWeaponImage(gameInfo.player.currentWeapon);
         weaponImageLabel.setBounds(210, 10, 64, 55);
@@ -85,9 +89,9 @@ public class StatPanel extends JPanel {
         );
         zombiesRemainingLabel.setFont(new Font("Courier New", Font.BOLD, 20));
         zombiesRemainingLabel.setHorizontalAlignment(SwingConstants.RIGHT);
-        zombiesRemainingLabel.setBounds(WIDTH - 400, 40, 200, 35);
+        zombiesRemainingLabel.setBounds(WIDTH - 450, 40, 200, 35);
         add(zombiesRemainingLabel);
-        
+
         healthLabel = createLabelWithIcon(
             healthText,
             "assets/Icons/health-normal.png",
@@ -96,13 +100,22 @@ public class StatPanel extends JPanel {
         healthLabel.setFont(new Font("Courier New", Font.BOLD, 20));
         healthLabel.setBounds(WIDTH - 390, 10, 150, 35);
         add(healthLabel);
-        
+
         healthBar = new JProgressBar(0, 100);
         healthBar.setValue((int)((gameInfo.player.health / Player.PLAYER_HEALTH) * 100));
         healthBar.setForeground(Color.RED);
         healthBar.setBounds(WIDTH - 260, 10, 200, 35);
         add(healthBar);
-        
+
+        scoreLabel = createLabelWithIcon(
+            scoreText + gameInfo.player.score,
+            "assets/Icons/stars-stack.png",
+            Color.YELLOW
+        );
+        scoreLabel.setFont(new Font("Courier New", Font.BOLD, 20));
+        scoreLabel.setBounds(WIDTH - 200, 40, 200, 35);
+        add(scoreLabel);
+
         healthPercentLabel = new JLabel((int)((gameInfo.player.health / Player.PLAYER_HEALTH) * 100) + "%");
         healthPercentLabel.setForeground(Color.RED);
         healthPercentLabel.setFont(new Font("Courier New", Font.BOLD, 16));
@@ -119,6 +132,7 @@ public class StatPanel extends JPanel {
         ammoLabel.setText(ammoText + weapon.currentAmmo);
         ammoClipLabel.setText(ammoClipText + (weapon instanceof Pistol ? "∞" : weapon.currentTotalAmmo));
         zombiesRemainingLabel.setText(zombiesRemainingText + gameInfo.zombies.size());
+        scoreLabel.setText(scoreText + gameInfo.player.score);
         waveLabel.setText(waveText + gameInfo.currentWave);
 
         int healthValue = (int)((gameInfo.player.health / Player.PLAYER_HEALTH) * 100);

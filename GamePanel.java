@@ -512,6 +512,8 @@ public class GamePanel extends JPanel implements ActionListener {
                             zombie.health -= bullet.getDamage();
                             if (zombie.health <= 0) {
                                 zombiesToRemove.add(zombie);
+                                gameInfo.player.kills++;
+                                gameInfo.player.score += zombie.score;                
                                 createLootDrop(zombie);
                                 if (zombie instanceof AcidicZombie) {
                                     applyBlastDamageToZombies(zombiesToRemove, bullet, zombie, AcidicZombie.BLAST_RADIUS);
@@ -661,6 +663,8 @@ public class GamePanel extends JPanel implements ActionListener {
                 targetZombie.health -= bullet.getDamage();
                 if (targetZombie.health <= 0) {
                     zombiesToRemove.add(targetZombie);
+                    gameInfo.player.kills++;
+                    gameInfo.player.score += targetZombie.score;    
                     createLootDrop(targetZombie);
                     if (targetZombie instanceof AcidicZombie) {
                         applyBlastDamageToZombies(zombiesToRemove, bullet, sourceZombie, AcidicZombie.BLAST_RADIUS);

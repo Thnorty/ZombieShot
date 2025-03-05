@@ -24,7 +24,6 @@ public class GameInfo {
 
     private int zombiesKilledLastWave = 0;
     protected int currentWave = 1;
-    protected int score = 0;
     protected int zombiesKilled = 0;
     protected int zombiesSpawned = 0;
     protected int selectedCharacter = 1;

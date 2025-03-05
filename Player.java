@@ -17,14 +17,17 @@ public class Player extends Entity {
 
     protected ArrayList<Weapon> weapons = new ArrayList<Weapon>();
     protected Weapon currentWeapon;
+    protected double health;
+    protected int score = 0;
+    protected int kills = 0;
     public boolean facingLeft = false;
-    protected double health = PLAYER_HEALTH;
 
     public Player(int x, int y, int characterNumber) {
         this.x = x;
         this.y = y;
         this.width = PLAYER_WIDTH;
         this.height = PLAYER_HEIGHT;
+        this.health = PLAYER_HEALTH;
         String charNumString = characterNumber < 10 ? "0" + characterNumber : String.valueOf(characterNumber);
         this.appearanceImagePath = "assets/Player/char_" + charNumString + "/walking/walking_01.png";
         String walkingDirPath = "assets/Player/char_" + charNumString + "/walking";

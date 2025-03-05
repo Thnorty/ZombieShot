@@ -18,7 +18,7 @@ public class GameOverPanel extends JPanel {
     private final int PANEL_WIDTH = GameFrame.WIDTH;
     private final int PANEL_HEIGHT = GameFrame.HEIGHT;
 
-    private String scoreText = "You survived %d waves and killed %d zombies";
+    private String scoreText = "You survived %d waves, killed %d zombies and scored %d points";
     private String restartGameText = "Play Again";
     private String exitGameText = "Exit Game";
     private JLabel gameOverLabel;
@@ -42,7 +42,7 @@ public class GameOverPanel extends JPanel {
         add(gameOverLabel);
         
         // Score display
-        scoreLabel = new JLabel(String.format(scoreText, gameInfo.currentWave-1, gameInfo.zombiesKilled));
+        scoreLabel = new JLabel(String.format(scoreText, gameInfo.currentWave-1, gameInfo.zombiesKilled, gameInfo.player.score));
         scoreLabel.setForeground(Color.WHITE);
         scoreLabel.setFont(new Font("Courier New", Font.BOLD, 28));
         scoreLabel.setHorizontalAlignment(SwingConstants.CENTER);
@@ -91,7 +91,7 @@ public class GameOverPanel extends JPanel {
     }
 
     public void updateStats() {
-        scoreLabel.setText(String.format(scoreText, gameInfo.currentWave-1, gameInfo.zombiesKilled));
+        scoreLabel.setText(String.format(scoreText, gameInfo.currentWave-1, gameInfo.zombiesKilled, gameInfo.player.score));
         repaint();
     }
 }
