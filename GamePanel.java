@@ -49,6 +49,9 @@ public class GamePanel extends JPanel implements ActionListener {
             }
             
             private void updateMousePosition(MouseEvent evt) {
+                if (gameInfo.isPaused) {
+                    return;
+                }
                 mouseX = evt.getX();
                 mouseY = evt.getY();
                 
@@ -136,6 +139,9 @@ public class GamePanel extends JPanel implements ActionListener {
                             if (gameInfo.statPanel != null)
                                 gameInfo.statPanel.update();
                         }
+                        break;
+                    case KeyEvent.VK_ESCAPE:
+                        togglePause();
                         break;
                 }
             }
@@ -433,6 +439,10 @@ public class GamePanel extends JPanel implements ActionListener {
     // Game update loop
     @Override
     public void actionPerformed(ActionEvent e) {
+        if (gameInfo.isPaused) {
+            return;
+        }
+
         if (gameInfo.player.health <= 0) {
             gameInfo.player.health = 0;
             gameInfo.gameTimer.stop();
@@ -806,5 +816,50 @@ public class GamePanel extends JPanel implements ActionListener {
             g2d.setFont(new Font("Arial", Font.BOLD, 10));
             g2d.drawString("RELOADING", barX + 2, barY - 2);
         }
+    }
+
+    private void togglePause() {
+        if (gameInfo.isPaused) {
+            resumeGame();
+        } else {
+            pauseGame();
+        }
+    }
+
+    public void pauseGame() {
+        gameInfo.isPaused = true;
+
+        // Stop game timers
+        if (gameInfo.gameTimer != null && gameInfo.gameTimer.isRunning()) {
+            gameInfo.gameTimer.stop();
+        }
+        if (gameInfo.zombieSpawnTimer != null && gameInfo.zombieSpawnTimer.isRunning()) {
+            gameInfo.zombieSpawnTimer.stop();
+        }
+        
+        // Show pause panel
+        if (gameInfo.pauseGamePanel != null) {
+            gameInfo.pauseGamePanel.setVisible(true);
+        }
+    }
+    
+    public void resumeGame() {
+        gameInfo.isPaused = false;
+        
+        // Restart game timers
+        if (gameInfo.gameTimer != null && !gameInfo.gameTimer.isRunning()) {
+            gameInfo.gameTimer.start();
+        }
+        if (gameInfo.zombieSpawnTimer != null && !gameInfo.zombieSpawnTimer.isRunning()) {
+            gameInfo.zombieSpawnTimer.start();
+        }
+        
+        // Hide pause panel
+        if (gameInfo.pauseGamePanel != null) {
+            gameInfo.pauseGamePanel.setVisible(false);
+        }
+        
+        // Ensure focus returns to game panel
+        requestFocus();
     }
 }

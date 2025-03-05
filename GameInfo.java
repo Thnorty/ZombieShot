@@ -16,6 +16,7 @@ public class GameInfo {
     protected GamePanel gamePanel;
     protected GameOverPanel gameOverPanel;
     protected MainMenuPanel mainMenuPanel;
+    protected PauseGamePanel pauseGamePanel;
     protected List<Zombie> zombies = new ArrayList<>();
     protected List<Bullet> bullets = new ArrayList<>();
     protected List<Drop> drops = new ArrayList<>();
@@ -27,6 +28,7 @@ public class GameInfo {
     protected int zombiesKilled = 0;
     protected int zombiesSpawned = 0;
     protected int selectedCharacter = 1;
+    protected boolean isPaused = false;
 
     public GameInfo() {
         player = new Player(0, 0, selectedCharacter);

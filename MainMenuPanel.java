@@ -117,6 +117,7 @@ public class MainMenuPanel extends JPanel {
         gameInfo.restartGame();
         setVisible(false);
         gameInfo.gameOverPanel.setVisible(false);
+        gameInfo.pauseGamePanel.setVisible(false);
         gameInfo.statPanel.setVisible(true);
         gameInfo.gamePanel.setVisible(true);
     }
