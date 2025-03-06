@@ -499,7 +499,7 @@ public class GamePanel extends JPanel implements ActionListener {
             bullet.y += bullet.directionY * gameInfo.BULLET_SPEED;
             
             // Remove bullets that go off screen
-            if (bullet.x < 0 || bullet.x > PANEL_WIDTH || bullet.y < 0 || bullet.y > PANEL_HEIGHT) {
+            if (bullet.x < -PANEL_WIDTH || bullet.x > PANEL_WIDTH*2 || bullet.y < -PANEL_HEIGHT || bullet.y > PANEL_HEIGHT*2) {
                 bulletsToRemove.add(bullet);
                 continue;
             }

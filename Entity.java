@@ -1,11 +1,16 @@
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import javax.imageio.ImageIO;
 import java.awt.Rectangle;
 
-public class Entity {
+public class Entity implements Serializable {
+    private static final long serialVersionUID = 1L;
+
     protected String appearanceImagePath = "assets/default.png";
     protected double x = 0;
     protected double y = 0;
@@ -13,7 +18,7 @@ public class Entity {
     protected double directionY = 0;
     protected int width = 32;
     protected int height = 32;
-    protected BufferedImage image;
+    protected transient BufferedImage image;
     protected double rotation = 0;
     protected static List<Entity> entities = new ArrayList<>();
 
@@ -66,5 +71,18 @@ public class Entity {
     }
     public double getCenterY() {
         return y + height / 2;
+    }
+
+    public void loadImage() {
+        setImage(new File(appearanceImagePath));
+    }
+
+    private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+        in.defaultReadObject();
+        // Reload the image
+        loadImage();
+        if (!entities.contains(this)) {
+            entities.add(this);
+        }
     }
 }

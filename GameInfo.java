@@ -1,6 +1,7 @@
 import java.util.ArrayList;
 import java.util.List;
 import javax.swing.Timer;
+import java.io.*;
 
 public class GameInfo {
     protected final int ZOMBIES_PER_WAVE = 20;
@@ -117,5 +118,120 @@ public class GameInfo {
         zombieSpawnTimer.start();  
 
         gamePanel.requestFocus();
+    }
+
+    public boolean saveGame() {
+        try {
+            File saveDir = new File("saves");
+            if (!saveDir.exists()) {
+                saveDir.mkdirs();
+            }
+            
+            FileOutputStream fileOut = new FileOutputStream("saves/zombieshot_save.dat");
+            ObjectOutputStream out = new ObjectOutputStream(fileOut);
+            
+            // Create a game state object with only the necessary data
+            GameState state = new GameState();
+            
+            // Save basic game state
+            state.currentWave = this.currentWave;
+            state.selectedCharacter = this.selectedCharacter;
+            state.player = this.player;
+            state.zombies = new ArrayList<>(this.zombies);
+            state.bullets = new ArrayList<>(this.bullets);
+            state.drops = new ArrayList<>(this.drops);
+            state.zombiesKilled = this.zombiesKilled;
+            state.zombiesSpawned = this.zombiesSpawned;
+            state.zombiesKilledLastWave = this.zombiesKilledLastWave;
+            
+            out.writeObject(state);
+            out.close();
+            fileOut.close();
+            
+            return true;
+        } catch (IOException e) {
+            System.err.println("Error saving game: " + e.getMessage());
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public boolean loadGame() {
+        try {
+            File saveFile = new File("saves/zombieshot_save.dat");
+            if (!saveFile.exists()) {
+                return false;
+            }
+            
+            FileInputStream fileIn = new FileInputStream(saveFile);
+            ObjectInputStream in = new ObjectInputStream(fileIn);
+            
+            GameState state = (GameState) in.readObject();
+            in.close();
+            fileIn.close();
+            
+            // Stop any running timers
+            if (gameTimer != null && gameTimer.isRunning()) {
+                gameTimer.stop();
+            }
+            if (zombieSpawnTimer != null && zombieSpawnTimer.isRunning()) {
+                zombieSpawnTimer.stop();
+            }
+            
+            // Restore game state
+            this.currentWave = state.currentWave;
+            this.selectedCharacter = state.selectedCharacter;
+            this.player = state.player;
+            
+            // Ensure the player has its images loaded
+            this.player.loadImage();
+            this.gamePanel.centerplayer();
+            
+            // Clear and restore entities
+            this.zombies.clear();
+            this.zombies.addAll(state.zombies);
+
+            this.bullets.clear();
+            this.bullets.addAll(state.bullets);
+            
+            this.drops.clear();
+            this.drops.addAll(state.drops);
+            
+            this.zombiesKilled = state.zombiesKilled;
+            this.zombiesSpawned = state.zombiesSpawned;
+            this.zombiesKilledLastWave = state.zombiesKilledLastWave;
+            
+            // Update UI
+            if (statPanel != null) {
+                statPanel.update();
+            }
+            
+            // Start the timers
+            gameTimer.start();
+            zombieSpawnTimer.start();
+
+            isPaused = false;
+            gamePanel.requestFocus();
+            
+            return true;
+        } catch (IOException | ClassNotFoundException e) {
+            System.err.println("Error loading game: " + e.getMessage());
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    // The GameState class holds all serializable game data
+    private static class GameState implements Serializable {
+        private static final long serialVersionUID = 1L;
+        int currentWave;
+        int selectedCharacter;
+        Player player;
+        List<Zombie> zombies;
+        List<Bullet> bullets;
+        List<Drop> drops;
+        int zombiesKilled;
+        int zombiesSpawned;
+        int zombiesKilledLastWave;
     }
 }

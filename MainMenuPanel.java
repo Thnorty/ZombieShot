@@ -12,6 +12,7 @@ import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.SwingConstants;
+import javax.swing.JOptionPane;
 
 public class MainMenuPanel extends JPanel {
     private final int PANEL_WIDTH = GameFrame.WIDTH;
@@ -54,9 +55,20 @@ public class MainMenuPanel extends JPanel {
         });
         mainMenuContentPanel.add(startButton);
 
-        // Character Selection button
+        // Load Game button
+        JButton loadButton = createButtonWithIcon("Load Game", "assets/Icons/load.png");
+        loadButton.setBounds(PANEL_WIDTH/2 - 125, PANEL_HEIGHT/2 + 100, 250, 60);
+        loadButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                loadGame();
+            }
+        });
+        mainMenuContentPanel.add(loadButton);
+        
+        // Character Selection button - adjust position
         JButton characterButton = createButtonWithIcon("Select Character", "assets/Icons/kimono.png");
-        characterButton.setBounds(PANEL_WIDTH/2 - 150, PANEL_HEIGHT/2 + 100, 300, 60);
+        characterButton.setBounds(PANEL_WIDTH/2 - 150, PANEL_HEIGHT/2 + 170, 300, 60);
         characterButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -65,9 +77,9 @@ public class MainMenuPanel extends JPanel {
         });
         mainMenuContentPanel.add(characterButton);
 
-        // Exit button
+        // Exit button - adjust position
         JButton exitButton = createButtonWithIcon("Exit Game", "assets/Icons/power-button.png");
-        exitButton.setBounds(PANEL_WIDTH/2 - 125, PANEL_HEIGHT/2 + 170, 250, 60);
+        exitButton.setBounds(PANEL_WIDTH/2 - 125, PANEL_HEIGHT/2 + 240, 250, 60);
         exitButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -124,5 +136,32 @@ public class MainMenuPanel extends JPanel {
 
     private void exitGame() {
         System.exit(0);
+    }
+
+    private void loadGame() {
+        boolean success = gameInfo.loadGame();
+        
+        if (success) {
+            setVisible(false);
+            gameInfo.gameOverPanel.setVisible(false);
+            gameInfo.pauseGamePanel.setVisible(false);
+            gameInfo.statPanel.setVisible(true);
+            gameInfo.gamePanel.setVisible(true);
+            
+            // Start game timers
+            if (gameInfo.gameTimer != null && !gameInfo.gameTimer.isRunning()) {
+                gameInfo.gameTimer.start();
+            }
+            if (gameInfo.zombieSpawnTimer != null && !gameInfo.zombieSpawnTimer.isRunning()) {
+                gameInfo.zombieSpawnTimer.start();
+            }
+            
+            gameInfo.gamePanel.requestFocus();
+        } else {
+            JOptionPane.showMessageDialog(this, 
+                "No saved game found or failed to load game!", 
+                "Load Error", 
+                JOptionPane.ERROR_MESSAGE);
+        }
     }
 }

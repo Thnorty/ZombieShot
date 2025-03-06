@@ -1,19 +1,22 @@
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.util.ArrayList;
 import javax.imageio.ImageIO;
 
 public class Player extends Entity {
     private static final int PLAYER_WIDTH = 64;
     private static final int PLAYER_HEIGHT = 64;
-    public static final int PLAYER_HEALTH = 100;
+    public static final int PLAYER_HEALTH = 10;
 
     // Animation fields
-    private BufferedImage[] walkingFrames;
+    private transient BufferedImage[] walkingFrames;
     private int currentFrame = 0;
     private long lastFrameTime = 0;
     private static final int FRAME_DELAY = 100;
     private boolean isMoving = false;
+    private int selectedCharacter;
 
     protected ArrayList<Weapon> weapons = new ArrayList<Weapon>();
     protected Weapon currentWeapon;
@@ -28,6 +31,7 @@ public class Player extends Entity {
         this.width = PLAYER_WIDTH;
         this.height = PLAYER_HEIGHT;
         this.health = PLAYER_HEALTH;
+        this.selectedCharacter = characterNumber;
         String charNumString = characterNumber < 10 ? "0" + characterNumber : String.valueOf(characterNumber);
         this.appearanceImagePath = "assets/Player/char_" + charNumString + "/walking/walking_01.png";
         String walkingDirPath = "assets/Player/char_" + charNumString + "/walking";
@@ -70,6 +74,13 @@ public class Player extends Entity {
     }
 
     public void updateAnimation() {
+        if (walkingFrames == null) {
+            // Reload walking frames if they're null (after deserialization)
+            String charNumString = (selectedCharacter < 10) ? "0" + selectedCharacter : String.valueOf(selectedCharacter);
+            String walkingDirPath = "assets/Player/char_" + charNumString + "/walking";
+            loadWalkingFrames(walkingDirPath);
+        }
+        
         if (isMoving && walkingFrames != null && walkingFrames.length > 0) {
             long currentTime = System.currentTimeMillis();
             if (currentTime - lastFrameTime > FRAME_DELAY) {
@@ -79,7 +90,7 @@ public class Player extends Entity {
             }
         } else {
             // Reset to standing frame when not moving
-            if (walkingFrames == null || currentFrame != 0) {
+            if (walkingFrames != null && walkingFrames.length > 0 && currentFrame != 0) {
                 image = walkingFrames[0];
                 currentFrame = 0;
             }
@@ -139,5 +150,14 @@ public class Player extends Entity {
             // Set gun rotation to match player rotation
             currentWeapon.rotation = rotation;
         }
+    }
+
+    private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+        in.defaultReadObject();
+        // Reload the image and walking frames after deserialization
+        loadImage();
+        String charNumString = selectedCharacter < 10 ? "0" + selectedCharacter : String.valueOf(selectedCharacter);
+        String walkingDirPath = "assets/Player/char_" + charNumString + "/walking";
+        loadWalkingFrames(walkingDirPath);
     }
 }

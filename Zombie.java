@@ -24,6 +24,7 @@ public class Zombie extends Entity {
         this.damage = damage;
         this.width = ZOMBIE_WIDTH;
         this.height = ZOMBIE_HEIGHT;
+        this.appearanceImagePath = appearanceImagePath;
         setImage(new File(appearanceImagePath));
     }
 
@@ -50,8 +51,8 @@ public class Zombie extends Entity {
     public Rectangle getBounds() {
         int reducedWidth = width / 2;
         int reducedHeight = height / 2;
-        int centerX = (int)x + (width - reducedWidth) / 2;
-        int centerY = (int)y + (height - reducedHeight) / 2;
-        return new Rectangle(centerX, centerY, reducedWidth, reducedHeight);
+        int topLeftX = (int)x + (width - reducedWidth) / 2;
+        int topLeftY = (int)y + (height - reducedHeight) / 2 + height / 8;
+        return new Rectangle(topLeftX, topLeftY, reducedWidth, reducedHeight);
     }
 }

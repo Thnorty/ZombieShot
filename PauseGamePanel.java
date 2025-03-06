@@ -2,12 +2,15 @@ import javax.swing.JPanel;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.SwingConstants;
+import javax.swing.JOptionPane;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.awt.event.ActionEvent;
 
 public class PauseGamePanel extends JPanel {
@@ -25,6 +28,15 @@ public class PauseGamePanel extends JPanel {
         setPreferredSize(new Dimension(PANEL_WIDTH, PANEL_HEIGHT));
         setLayout(null);
         setOpaque(false);
+
+        addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyPressed(KeyEvent e) {
+                if (e.getKeyCode() == KeyEvent.VK_ESCAPE) {
+                    resumeGame();
+                }
+            }
+        });
         
         // Pause title
         pauseLabel = new JLabel("GAME PAUSED");
@@ -52,10 +64,22 @@ public class PauseGamePanel extends JPanel {
         });
         add(resumeButton);
         
-        // Main menu button
+        // Add Save Game button
+        JButton saveGameButton = new JButton("Save Game");
+        saveGameButton.setFont(new Font("Courier New", Font.BOLD, 24));
+        saveGameButton.setBounds(PANEL_WIDTH/2 - buttonWidth/2, buttonY + buttonGap, buttonWidth, buttonHeight);
+        saveGameButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                saveGame();
+            }
+        });
+        add(saveGameButton);
+        
+        // Main menu button - adjust position to account for new Save Game button
         mainMenuButton = new JButton("Main Menu");
         mainMenuButton.setFont(new Font("Courier New", Font.BOLD, 24));
-        mainMenuButton.setBounds(PANEL_WIDTH/2 - buttonWidth/2, buttonY + buttonGap, buttonWidth, buttonHeight);
+        mainMenuButton.setBounds(PANEL_WIDTH/2 - buttonWidth/2, buttonY + buttonGap*2, buttonWidth, buttonHeight);
         mainMenuButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -64,10 +88,10 @@ public class PauseGamePanel extends JPanel {
         });
         add(mainMenuButton);
         
-        // Exit button
+        // Exit button - adjust position to account for new Save Game button
         exitButton = new JButton("Exit Game");
         exitButton.setFont(new Font("Courier New", Font.BOLD, 24));
-        exitButton.setBounds(PANEL_WIDTH/2 - buttonWidth/2, buttonY + buttonGap*2, buttonWidth, buttonHeight);
+        exitButton.setBounds(PANEL_WIDTH/2 - buttonWidth/2, buttonY + buttonGap*3, buttonWidth, buttonHeight);
         exitButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -112,5 +136,27 @@ public class PauseGamePanel extends JPanel {
     
     private void exitGame() {
         System.exit(0);
+    }
+    
+    private void saveGame() {
+        boolean success = gameInfo.saveGame();
+        
+        if (success) {
+            // Show a message that game was saved
+            JOptionPane.showMessageDialog(this, 
+                "Game saved successfully!", 
+                "Save Complete", 
+                JOptionPane.INFORMATION_MESSAGE
+            );
+        } else {
+            // Show error message if save failed
+            JOptionPane.showMessageDialog(this, 
+                "Failed to save game!", 
+                "Save Error", 
+                JOptionPane.ERROR_MESSAGE
+            );
+        }
+
+        this.requestFocus();
     }
 }

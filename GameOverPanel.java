@@ -10,6 +10,7 @@ import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.SwingConstants;
 
@@ -20,10 +21,12 @@ public class GameOverPanel extends JPanel {
 
     private String scoreText = "You survived %d waves, killed %d zombies and scored %d points";
     private String restartGameText = "Play Again";
+    private String loadSaveText = "Resume from Last Save";
     private String exitGameText = "Exit Game";
     private JLabel gameOverLabel;
     private JLabel scoreLabel;
     private JButton restartButton;
+    private JButton loadSaveButton;
     private JButton exitButton;
 
     public GameOverPanel(GameInfo gameInfo) {
@@ -60,9 +63,20 @@ public class GameOverPanel extends JPanel {
         });
         add(restartButton);
         
-        // Exit button
+        // Load save button
+        loadSaveButton = createButtonWithIcon(loadSaveText, "assets/Icons/load.png");
+        loadSaveButton.setBounds(PANEL_WIDTH/2 - 200, PANEL_HEIGHT/2 + 120, 400, 60);
+        loadSaveButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                loadLastSave();
+            }
+        });
+        add(loadSaveButton);
+        
+        // Exit button - moved down to accommodate the new button
         exitButton = createButtonWithIcon(exitGameText, "assets/Icons/power-button.png");
-        exitButton.setBounds(PANEL_WIDTH/2 - 125, PANEL_HEIGHT/2 + 130, 250, 60);
+        exitButton.setBounds(PANEL_WIDTH/2 - 125, PANEL_HEIGHT/2 + 190, 250, 60);
         exitButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -93,5 +107,21 @@ public class GameOverPanel extends JPanel {
     public void updateStats() {
         scoreLabel.setText(String.format(scoreText, gameInfo.currentWave-1, gameInfo.zombiesKilled, gameInfo.player.score));
         repaint();
+    }
+    
+    private void loadLastSave() {
+        boolean success = gameInfo.loadGame();
+        
+        if (success) {
+            setVisible(false);
+            gameInfo.gamePanel.setVisible(true);
+            gameInfo.statPanel.setVisible(true);
+        } else {
+            JOptionPane.showMessageDialog(this, 
+                "No saved game found or failed to load game!", 
+                "Load Error", 
+                JOptionPane.ERROR_MESSAGE
+            );
+        }
     }
 }
