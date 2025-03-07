@@ -21,6 +21,7 @@ public class MainMenuPanel extends JPanel {
     private GameInfo gameInfo;
     private CharacterSelectionPanel characterSelectionPanel;
     private JPanel mainMenuContentPanel;
+    protected boolean startGameAfterSelection = false;
 
     public MainMenuPanel(GameInfo gameInfo) {
         this.gameInfo = gameInfo;
@@ -34,7 +35,6 @@ public class MainMenuPanel extends JPanel {
         mainMenuContentPanel.setBounds(0, 0, PANEL_WIDTH, PANEL_HEIGHT);
         mainMenuContentPanel.setBackground(new Color(32, 32, 32));
         mainMenuContentPanel.setOpaque(true);
-        add(mainMenuContentPanel);
 
         // Main menu text
         JLabel mainMenuLabel = new JLabel("MAIN MENU");
@@ -45,12 +45,12 @@ public class MainMenuPanel extends JPanel {
         mainMenuContentPanel.add(mainMenuLabel);
 
         // Start button
-        JButton startButton = createButtonWithIcon("Start Game", "assets/Icons/play-button.png");
-        startButton.setBounds(PANEL_WIDTH/2 - 125, PANEL_HEIGHT/2 + 30, 250, 60);
+        JButton startButton = createButtonWithIcon("Start New Game", "assets/Icons/play-button.png");
+        startButton.setBounds(PANEL_WIDTH/2 - 150, PANEL_HEIGHT/2 + 30, 300, 60);
         startButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                startGame();
+                showCharacterSelectionForStart();
             }
         });
         mainMenuContentPanel.add(startButton);
@@ -66,20 +66,9 @@ public class MainMenuPanel extends JPanel {
         });
         mainMenuContentPanel.add(loadButton);
         
-        // Character Selection button - adjust position
-        JButton characterButton = createButtonWithIcon("Select Character", "assets/Icons/kimono.png");
-        characterButton.setBounds(PANEL_WIDTH/2 - 150, PANEL_HEIGHT/2 + 170, 300, 60);
-        characterButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                showCharacterSelection();
-            }
-        });
-        mainMenuContentPanel.add(characterButton);
-
         // Exit button - adjust position
         JButton exitButton = createButtonWithIcon("Exit Game", "assets/Icons/power-button.png");
-        exitButton.setBounds(PANEL_WIDTH/2 - 125, PANEL_HEIGHT/2 + 240, 250, 60);
+        exitButton.setBounds(PANEL_WIDTH/2 - 125, PANEL_HEIGHT/2 + 170, 250, 60);
         exitButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -88,16 +77,18 @@ public class MainMenuPanel extends JPanel {
         });
         mainMenuContentPanel.add(exitButton);
 
-        // Create character selection panel
+        add(mainMenuContentPanel);
+
         characterSelectionPanel = new CharacterSelectionPanel(gameInfo);
         characterSelectionPanel.setBounds(0, 0, PANEL_WIDTH, PANEL_HEIGHT);
         characterSelectionPanel.setVisible(false);
         add(characterSelectionPanel);
-        
+
         setVisible(true);
     }
 
-    private void showCharacterSelection() {
+    private void showCharacterSelectionForStart() {
+        startGameAfterSelection = true;
         mainMenuContentPanel.setVisible(false);
         characterSelectionPanel.setVisible(true);
     }
@@ -125,7 +116,7 @@ public class MainMenuPanel extends JPanel {
         characterSelectionPanel.setVisible(false);
     }
 
-    private void startGame() {
+    void startGame() {
         gameInfo.restartGame();
         setVisible(false);
         gameInfo.gameOverPanel.setVisible(false);

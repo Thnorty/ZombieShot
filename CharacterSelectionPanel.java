@@ -184,32 +184,37 @@ public class CharacterSelectionPanel extends JPanel {
         repaint();
     }
     
-    private void selectCharacter() {
+    public void selectCharacter() {
         if (!characterOptions.isEmpty()) {
             gameInfo.setSelectedCharacter(characterOptions.get(selectedIndex).id);
             setVisible(false);
             
-            // Access the parent directly - would be better with a callback
             Container parent = getParent();
             if (parent instanceof MainMenuPanel) {
                 MainMenuPanel mainMenu = (MainMenuPanel) parent;
                 mainMenu.showMainMenuContent();
+                if (mainMenu.startGameAfterSelection) {
+                    mainMenu.startGame();
+                    mainMenu.startGameAfterSelection = false;
+                } else {
+                    mainMenu.showMainMenuContent();
+                }
             }
         }
     }
     
-    private void goBack() {
+    public void goBack() {
         setVisible(false);
         
-        // Access the parent directly - would be better with a callback
         Container parent = getParent();
         if (parent instanceof MainMenuPanel) {
             MainMenuPanel mainMenu = (MainMenuPanel) parent;
             mainMenu.showMainMenuContent();
+            mainMenu.startGameAfterSelection = false;
+            mainMenu.showMainMenuContent();
         }
     }
     
-    // Inner class to store character information
     private static class CharacterOption {
         int id;
         BufferedImage image;
