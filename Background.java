@@ -28,7 +28,7 @@ public class Background {
     private Set<Integer> obstacleTileIndices;
     
     // Debug visualization settings
-    private boolean debugMode = true;
+    private boolean debugMode = false;
     private int checkedCellX;
     private int checkedCellY;
     private boolean lastMoveBlocked = false;
