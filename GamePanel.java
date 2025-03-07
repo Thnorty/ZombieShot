@@ -21,6 +21,7 @@ public class GamePanel extends JPanel implements ActionListener {
     private final int PANEL_WIDTH = GameFrame.WIDTH;
     private final int PANEL_HEIGHT = GameFrame.HEIGHT - StatPanel.HEIGHT;
 
+    private Background background;
     private GameInfo gameInfo;
     private int mouseX = PANEL_WIDTH / 2;
     private int mouseY = PANEL_HEIGHT / 2;
@@ -37,6 +38,8 @@ public class GamePanel extends JPanel implements ActionListener {
         setPreferredSize(new Dimension(PANEL_WIDTH, PANEL_HEIGHT));
         setBackground(Color.GRAY);
         setFocusable(true);
+
+        background = new Background("assets/Background/tile_0000.png", "assets/Background/tile_0001.png", "assets/Background/tile_0002.png");
 
         // Mouse motion listener for player rotation
         addMouseMotionListener(new MouseMotionAdapter() {
@@ -305,6 +308,9 @@ public class GamePanel extends JPanel implements ActionListener {
         super.paintComponent(g);
         Graphics2D g2d = (Graphics2D) g;
 
+        // Draw the background
+        background.draw(g2d, PANEL_WIDTH, PANEL_HEIGHT);
+
         AffineTransform originalTransform = g2d.getTransform();
 
         // Draw all drops
@@ -479,6 +485,8 @@ public class GamePanel extends JPanel implements ActionListener {
             verticalMovement /= movementLength;
         }
         if (horizontalMovement != 0 || verticalMovement != 0) {
+            // Update the background
+            background.update(horizontalMovement * gameInfo.PLAYER_SPEED, verticalMovement * gameInfo.PLAYER_SPEED);
             for (Entity entity : Entity.entities) {
                 if (entity instanceof Player || entity instanceof Weapon) {
                     continue;
