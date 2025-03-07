@@ -39,7 +39,17 @@ public class GamePanel extends JPanel implements ActionListener {
         setBackground(Color.GRAY);
         setFocusable(true);
 
-        background = new Background("assets/Background/tile_0000.png", "assets/Background/tile_0001.png", "assets/Background/tile_0002.png");
+        background = new Background(
+            new String[]{
+                "assets/Background/tile_0000.png",
+                "assets/Background/tile_0001.png",
+                "assets/Background/tile_0002.png",
+                "assets/Background/tile_0043.png"
+            }, new String[]{
+                "assets/Background/tile_0027.png",
+                "assets/Background/tile_0028.png",
+            }
+        );
 
         // Mouse motion listener for player rotation
         addMouseMotionListener(new MouseMotionAdapter() {
@@ -145,6 +155,9 @@ public class GamePanel extends JPanel implements ActionListener {
                         break;
                     case KeyEvent.VK_ESCAPE:
                         togglePause();
+                        break;
+                    case KeyEvent.VK_F3:
+                        background.toggleDebugMode();
                         break;
                 }
             }
@@ -309,7 +322,7 @@ public class GamePanel extends JPanel implements ActionListener {
         Graphics2D g2d = (Graphics2D) g;
 
         // Draw the background
-        background.draw(g2d, PANEL_WIDTH, PANEL_HEIGHT);
+        background.draw(g2d, PANEL_WIDTH, PANEL_HEIGHT, gameInfo.player.x, gameInfo.player.y);
 
         AffineTransform originalTransform = g2d.getTransform();
 
@@ -465,8 +478,8 @@ public class GamePanel extends JPanel implements ActionListener {
         }
 
         // Handle player movement
-        float horizontalMovement = 0;
-        float verticalMovement = 0;
+        double horizontalMovement = 0;
+        double verticalMovement = 0;
         
         if (moveUp) verticalMovement -= gameInfo.PLAYER_SPEED;
         if (moveDown) verticalMovement += gameInfo.PLAYER_SPEED;
@@ -485,14 +498,20 @@ public class GamePanel extends JPanel implements ActionListener {
             verticalMovement /= movementLength;
         }
         if (horizontalMovement != 0 || verticalMovement != 0) {
-            // Update the background
-            background.update(horizontalMovement * gameInfo.PLAYER_SPEED, verticalMovement * gameInfo.PLAYER_SPEED);
-            for (Entity entity : Entity.entities) {
-                if (entity instanceof Player || entity instanceof Weapon) {
-                    continue;
+            // Try to update the background position with collision detection
+            boolean moveSuccessful = background.update(horizontalMovement * gameInfo.PLAYER_SPEED, 
+                                                      verticalMovement * gameInfo.PLAYER_SPEED,
+                                                        gameInfo.player.height);
+            
+            // Only move entities if the player's move was successful
+            if (moveSuccessful) {
+                for (Entity entity : Entity.entities) {
+                    if (entity instanceof Player || entity instanceof Weapon) {
+                        continue;
+                    }
+                    entity.x -= horizontalMovement * gameInfo.PLAYER_SPEED;
+                    entity.y -= verticalMovement * gameInfo.PLAYER_SPEED;
                 }
-                entity.x -= horizontalMovement * gameInfo.PLAYER_SPEED;
-                entity.y -= verticalMovement * gameInfo.PLAYER_SPEED;
             }
         }
         
