@@ -184,7 +184,7 @@ public class CharacterSelectionPanel extends JPanel {
         repaint();
     }
     
-    public void selectCharacter() {
+    private void selectCharacter() {
         if (!characterOptions.isEmpty()) {
             gameInfo.setSelectedCharacter(characterOptions.get(selectedIndex).id);
             setVisible(false);
@@ -203,7 +203,7 @@ public class CharacterSelectionPanel extends JPanel {
         }
     }
     
-    public void goBack() {
+    private void goBack() {
         setVisible(false);
         
         Container parent = getParent();
