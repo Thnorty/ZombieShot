@@ -307,6 +307,18 @@ public class GamePanel extends JPanel implements ActionListener {
 
         AffineTransform originalTransform = g2d.getTransform();
 
+        // Draw all drops
+        for (Drop drop : gameInfo.drops) {
+            if (!drop.isCollected() && drop.image != null) {
+                g2d.drawImage(drop.image, (int)drop.x, (int)drop.y, 
+                             drop.width, drop.height, null);
+            } else if (!drop.isCollected()) {
+                // Fallback if image fails to load
+                g2d.setColor(Color.YELLOW);
+                g2d.fillRect((int)drop.x, (int)drop.y, drop.width, drop.height);
+            }
+        }
+
         // Draw player
         if (gameInfo.player.image != null) {
             // Store original transform
@@ -420,18 +432,6 @@ public class GamePanel extends JPanel implements ActionListener {
             } else {
                 g2d.setColor(Color.GREEN);
                 g2d.fillRect((int)zombie.x, (int)zombie.y, 50, 50);
-            }
-        }
-
-        // Draw all drops
-        for (Drop drop : gameInfo.drops) {
-            if (!drop.isCollected() && drop.image != null) {
-                g2d.drawImage(drop.image, (int)drop.x, (int)drop.y, 
-                             drop.width, drop.height, null);
-            } else if (!drop.isCollected()) {
-                // Fallback if image fails to load
-                g2d.setColor(Color.YELLOW);
-                g2d.fillRect((int)drop.x, (int)drop.y, drop.width, drop.height);
             }
         }
     }
@@ -582,7 +582,7 @@ public class GamePanel extends JPanel implements ActionListener {
             if (zombie instanceof ReptileZombie) {
                 ReptileZombie reptileZombie = (ReptileZombie)zombie;
                 
-                if (distanceToplayer < 200) {
+                if (distanceToplayer < ReptileZombie.JUMP_DISTANCE) {
                     if (!reptileZombie.isJumping && reptileZombie.canJump()) {
                         reptileZombie.prepareJump(charCenterX, charCenterY);
                     }
@@ -606,35 +606,41 @@ public class GamePanel extends JPanel implements ActionListener {
 
         for (Drop drop : gameInfo.drops) {
             if (!drop.isCollected() && gameInfo.player.getBounds().intersects(drop.getBounds())) {
-                // Player collected the ammo drop
-                drop.collect();
-                dropsToRemove.add(drop);
-
-                if (drop instanceof AmmoDrop) {
-                    AmmoDrop weaponDrop = (AmmoDrop)drop;
-
-                    int ammoToAdd = weaponDrop.getAmmoAmount();
-                    Weapon sourceWeapon = weaponDrop.getSourceWeapon();
-
-                    for (Weapon playerWeapon : gameInfo.player.weapons) {
-                        if (playerWeapon != null && playerWeapon.getClass().equals(sourceWeapon.getClass())) {
-                            if (playerWeapon.currentTotalAmmo <= Integer.MAX_VALUE - ammoToAdd) {
-                                playerWeapon.currentTotalAmmo += ammoToAdd;
-                            } else {
-                                playerWeapon.currentTotalAmmo = Integer.MAX_VALUE;
-                            }
-                            break;
+                if (drop instanceof HealthDrop) {
+                    HealthDrop healthDrop = (HealthDrop)drop;
+                    if (gameInfo.player.health < Player.PLAYER_HEALTH) {
+                        drop.collect();
+                        dropsToRemove.add(drop);
+                        
+                        if (gameInfo.player.health <= Player.PLAYER_HEALTH - healthDrop.getHealthAmount()) {
+                            gameInfo.player.health += healthDrop.getHealthAmount();
+                        } else {
+                            gameInfo.player.health = Player.PLAYER_HEALTH;
                         }
                     }
-                } else if (drop instanceof HealthDrop) {
-                    HealthDrop healthDrop = (HealthDrop)drop;
-                    if (gameInfo.player.health <= Player.PLAYER_HEALTH - healthDrop.getHealthAmount()) {
-                        gameInfo.player.health += healthDrop.getHealthAmount();
-                    } else {
-                        gameInfo.player.health = Player.PLAYER_HEALTH;
+                } else {
+                    drop.collect();
+                    dropsToRemove.add(drop);
+
+                    if (drop instanceof AmmoDrop) {
+                        AmmoDrop weaponDrop = (AmmoDrop)drop;
+
+                        int ammoToAdd = weaponDrop.getAmmoAmount();
+                        Weapon sourceWeapon = weaponDrop.getSourceWeapon();
+
+                        for (Weapon playerWeapon : gameInfo.player.weapons) {
+                            if (playerWeapon != null && playerWeapon.getClass().equals(sourceWeapon.getClass())) {
+                                if (playerWeapon.currentTotalAmmo <= Integer.MAX_VALUE - ammoToAdd) {
+                                    playerWeapon.currentTotalAmmo += ammoToAdd;
+                                } else {
+                                    playerWeapon.currentTotalAmmo = Integer.MAX_VALUE;
+                                }
+                                break;
+                            }
+                        }
                     }
                 }
-                
+     
                 // Update the stats panel
                 if (gameInfo.statPanel != null) {
                     gameInfo.statPanel.update();
