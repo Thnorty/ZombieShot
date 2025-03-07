@@ -151,6 +151,11 @@ public class GameInfo {
             state.zombiesSpawned = this.zombiesSpawned;
             state.zombiesKilledLastWave = this.zombiesKilledLastWave;
             
+            // Save background itself instead of just the offset
+            if (gamePanel != null && gamePanel.background != null) {
+                state.background = gamePanel.background;
+            }
+            
             out.writeObject(state);
             out.close();
             fileOut.close();
@@ -208,6 +213,11 @@ public class GameInfo {
             this.zombiesSpawned = state.zombiesSpawned;
             this.zombiesKilledLastWave = state.zombiesKilledLastWave;
             
+            // Restore background
+            if (gamePanel != null && state.background != null) {
+                gamePanel.background = state.background;
+            }
+            
             // Update UI
             if (statPanel != null) {
                 statPanel.update();
@@ -240,5 +250,6 @@ public class GameInfo {
         int zombiesKilled;
         int zombiesSpawned;
         int zombiesKilledLastWave;
+        Background background;
     }
 }

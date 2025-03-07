@@ -13,19 +13,28 @@ import java.util.HashSet;
 import java.awt.Color;
 import java.awt.BasicStroke;
 import java.awt.Font;
+import java.io.Serializable;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 
-public class Background {
-    private List<BufferedImage> tileImages;
+public class Background implements Serializable {
+    private static final long serialVersionUID = 1L;
+    
+    private transient List<BufferedImage> tileImages;
     private final int TILE_SIZE = 64;
     private double offsetX = 0;
     private double offsetY = 0;
-    private Random random = new Random();
+    private transient Random random = new Random();
     
     // Store pattern for each cell position
     private Map<String, Integer> cellPatterns;
     
     // Tile indices that represent obstacles (can't walk through)
     private Set<Integer> obstacleTileIndices;
+    
+    // Store image paths for reloading after deserialization
+    private String[] backgroundImagePaths;
+    private String[] obstacleImagePaths;
     
     // Debug visualization settings
     private boolean debugMode = false;
@@ -39,6 +48,10 @@ public class Background {
      * @param obstacleTilePaths Array of paths to the obstacle tile images
      */
     public Background(String[] backgroundTileImages, String[] obstacleTilePaths) {
+        // Store image paths for later reloading if needed
+        this.backgroundImagePaths = backgroundTileImages;
+        this.obstacleImagePaths = obstacleTilePaths;
+        
         // Load all tile images (both background and obstacles)
         loadTileImages(backgroundTileImages, obstacleTilePaths);
         cellPatterns = new HashMap<>();
@@ -313,5 +326,35 @@ public class Background {
      */
     public int getCellYFromScreenPos(int screenY) {
         return (int)Math.floor((screenY + offsetY) / TILE_SIZE);
+    }
+    
+    /**
+     * Set the background offset directly
+     * @param x The new X offset
+     * @param y The new Y offset
+     */
+    public void setOffset(double x, double y) {
+        this.offsetX = x;
+        this.offsetY = y;
+    }
+
+    /**
+     * Custom serialization to handle transient fields
+     */
+    private void writeObject(ObjectOutputStream out) throws IOException {
+        out.defaultWriteObject();
+    }
+
+    /**
+     * Custom deserialization to reload transient fields
+     */
+    private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+        in.defaultReadObject();
+        
+        // Reinitialize transient fields
+        random = new Random();
+        
+        // Reload tile images
+        loadTileImages(backgroundImagePaths, obstacleImagePaths);
     }
 }

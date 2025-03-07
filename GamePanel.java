@@ -21,12 +21,12 @@ public class GamePanel extends JPanel implements ActionListener {
     private final int PANEL_WIDTH = GameFrame.WIDTH;
     private final int PANEL_HEIGHT = GameFrame.HEIGHT - StatPanel.HEIGHT;
 
-    private Background background;
     private GameInfo gameInfo;
     private int mouseX = PANEL_WIDTH / 2;
     private int mouseY = PANEL_HEIGHT / 2;
     private Random random = new Random();
 
+    protected Background background;
     protected boolean moveUp = false;
     protected boolean moveDown = false;
     protected boolean moveLeft = false;
