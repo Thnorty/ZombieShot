@@ -78,6 +78,15 @@ public class GameInfo {
     }
     
     public void restartGame() {
+        if (gameTimer != null && gameTimer.isRunning()) {
+            gameTimer.stop();
+        }
+        if (zombieSpawnTimer != null && zombieSpawnTimer.isRunning()) {
+            zombieSpawnTimer.stop();
+        }
+
+        isPaused = false;
+
         player = new Player(0, 0, selectedCharacter);
         gamePanel.centerplayer();
 
@@ -110,14 +119,12 @@ public class GameInfo {
         
         gameOverPanel.setVisible(false);
 
-        if (gameTimer.isRunning())
-            gameTimer.stop();
-        if (zombieSpawnTimer.isRunning())
-            zombieSpawnTimer.stop();
-        gameTimer.start();
-        zombieSpawnTimer.start();  
-
-        gamePanel.requestFocus();
+        if (!gameTimer.isRunning()) {
+            gameTimer.start();
+        }
+        if (!zombieSpawnTimer.isRunning()) {
+            zombieSpawnTimer.start();
+        }
     }
 
     public boolean saveGame() {

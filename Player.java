@@ -8,7 +8,7 @@ import javax.imageio.ImageIO;
 public class Player extends Entity {
     private static final int PLAYER_WIDTH = 64;
     private static final int PLAYER_HEIGHT = 64;
-    public static final int PLAYER_HEALTH = 10;
+    public static final int PLAYER_HEALTH = 100;
 
     // Animation fields
     private transient BufferedImage[] walkingFrames;

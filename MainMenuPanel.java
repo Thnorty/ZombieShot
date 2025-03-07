@@ -132,6 +132,7 @@ public class MainMenuPanel extends JPanel {
         gameInfo.pauseGamePanel.setVisible(false);
         gameInfo.statPanel.setVisible(true);
         gameInfo.gamePanel.setVisible(true);
+        gameInfo.gamePanel.requestFocus();
     }
 
     private void exitGame() {
