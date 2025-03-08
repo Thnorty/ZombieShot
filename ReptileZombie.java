@@ -1,5 +1,5 @@
 public class ReptileZombie extends Zombie {
-    private static final long JUMP_COOLDOWN = 5000;
+    private static final long JUMP_COOLDOWN = 3000;
     private static final double JUMP_AWAY_DISTANCE = 200;
     protected static final double JUMP_SPEED = 10;
     protected static final double JUMP_DISTANCE = 300;
@@ -11,7 +11,7 @@ public class ReptileZombie extends Zombie {
     private long lastJumpTime = 0;
 
     public ReptileZombie(int x, int y) {
-        super(x, y, 50, 2, 10, "assets/Zombies/reptile_zombie.png");
+        super(x, y, 50, 2, 10, "assets/Zombies/reptile_zombie.png", 75);
     }
 
     // Add a method to set random jump direction

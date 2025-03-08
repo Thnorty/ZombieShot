@@ -4,7 +4,7 @@ public class AcidicZombie extends Zombie {
     public static final int BLAST_RADIUS = 300;
 
     public AcidicZombie(int x, int y) {
-        super(x, y, 50, 0.5, 10, "assets/Zombies/acidic_zombie.png");
+        super(x, y, 50, 0.5, 10, "assets/Zombies/acidic_zombie.png", 150);
         attackRange = 400;
     }
     

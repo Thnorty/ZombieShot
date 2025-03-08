@@ -15,6 +15,11 @@ public class Zombie extends Entity {
     protected long lastAttackTime = 0;
     protected int score = 100;
 
+    public Zombie(int x, int y, int health, double speed, double damage, String appearanceImagePath, int score) {
+        this(x, y, health, speed, damage, appearanceImagePath);
+        this.score = score;
+    }
+
     public Zombie(int x, int y, int health, double speed, double damage, String appearanceImagePath) {
         this.x = x;
         this.y = y;
