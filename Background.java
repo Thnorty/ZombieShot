@@ -20,8 +20,8 @@ import java.io.ObjectOutputStream;
 public class Background implements Serializable {
     private static final long serialVersionUID = 1L;
     
+    protected final int TILE_SIZE = 64;
     private transient List<BufferedImage> tileImages;
-    private final int TILE_SIZE = 64;
     private double offsetX = 0;
     private double offsetY = 0;
     private transient Random random = new Random();
@@ -211,6 +211,27 @@ public class Background implements Serializable {
         }
         
         // If cell doesn't exist yet, it's a new cell - allow movement
+        return true;
+    }
+
+    public boolean isValidSpawnPosition(double x, double y, int width, int height) {
+        // Calculate the world coordinates of the entity's center
+        double entityWorldCenterX = x + width/2 + offsetX;
+        double entityWorldCenterY = y + height/2 + offsetY + 32; // Same offset as in isValidMoveForEntity
+        
+        // Convert to cell coordinates
+        int centerCellX = (int)Math.floor(entityWorldCenterX / TILE_SIZE);
+        int centerCellY = (int)Math.floor(entityWorldCenterY / TILE_SIZE);
+        
+        // Check if this cell contains an obstacle
+        String key = centerCellX + "," + centerCellY;
+        if (cellPatterns.containsKey(key)) {
+            int tileIndex = cellPatterns.get(key);
+            boolean isObstacle = obstacleTileIndices.contains(tileIndex);
+            return !isObstacle; // Return true if NOT an obstacle
+        }
+        
+        // If cell doesn't exist yet, it's a new cell - allow spawning
         return true;
     }
 

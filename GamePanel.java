@@ -204,6 +204,7 @@ public class GamePanel extends JPanel implements ActionListener {
         int safeDistance = 200; // Minimum distance from player
         int x, y;
         double distance;
+        boolean validPosition;
 
         do {
             // Generate random position within panel
@@ -219,7 +220,11 @@ public class GamePanel extends JPanel implements ActionListener {
             double dx = charCenterX - zombieCenterX;
             double dy = charCenterY - zombieCenterY;
             distance = Math.sqrt(dx*dx + dy*dy);
-        } while (distance < safeDistance);
+            
+            // Check if position is valid (not on an obstacle)
+            validPosition = background.isValidSpawnPosition(x, y, Zombie.ZOMBIE_WIDTH, Zombie.ZOMBIE_HEIGHT);
+            
+        } while (distance < safeDistance || !validPosition);
 
         // Create and add the new zombie
         int zombieVariety = 0;
@@ -245,16 +250,57 @@ public class GamePanel extends JPanel implements ActionListener {
     }
 
     public void centerplayer() {
-        if (gameInfo.player.image != null) {
-            int x = (PANEL_WIDTH / 2) - (gameInfo.player.width / 2);
-            int y = (PANEL_HEIGHT / 2) - (gameInfo.player.height / 2);
+        // Initial position at center of screen
+        int x = (PANEL_WIDTH / 2) - (gameInfo.player.width / 2);
+        int y = (PANEL_HEIGHT / 2) - (gameInfo.player.height / 2);
+        
+        // Check if this is a valid spawn position (not on an obstacle)
+        boolean validPosition = background.isValidSpawnPosition(x, y, gameInfo.player.width, gameInfo.player.height);
+        
+        // If the center position isn't valid, find a nearby valid position using a spiral search pattern
+        if (!validPosition) {
+            int searchRadius = 25;
+            int spiralX = 0;
+            int spiralY = 0;
+            int spiralDx = 0;
+            int spiralDy = -1;
             
-            gameInfo.player.x = x;
-            gameInfo.player.y = y;
-        } else {
-            gameInfo.player.x = (PANEL_WIDTH / 2) - 25;
-            gameInfo.player.y = (PANEL_HEIGHT / 2) - 25;
+            // Search up to 25 tile cells away (should be enough to find an empty spot)
+            for (int i = 0; i < searchRadius * searchRadius; i++) {
+                // Try the current position in the spiral
+                int testX = x + (spiralX * background.TILE_SIZE);
+                int testY = y + (spiralY * background.TILE_SIZE);
+                
+                if (background.isValidSpawnPosition(testX, testY, gameInfo.player.width, gameInfo.player.height)) {
+                    // Found a valid position
+                    x = testX;
+                    y = testY;
+                    validPosition = true;
+                    break;
+                }
+                
+                // Move to the next position in the spiral
+                if (spiralX == spiralY || (spiralX < 0 && spiralX == -spiralY) || (spiralX > 0 && spiralX == 1-spiralY)) {
+                    // Change direction when we hit a corner in the spiral
+                    int temp = spiralDx;
+                    spiralDx = -spiralDy;
+                    spiralDy = temp;
+                }
+                spiralX += spiralDx;
+                spiralY += spiralDy;
+            }
+            
+            // If we still couldn't find a valid position, use the original center (fallback)
+            // This is very unlikely but we should handle it anyway
+            if (!validPosition) {
+                x = (PANEL_WIDTH / 2) - (gameInfo.player.width / 2);
+                y = (PANEL_HEIGHT / 2) - (gameInfo.player.height / 2);
+            }
         }
+        
+        // Set player position
+        gameInfo.player.x = x;
+        gameInfo.player.y = y;
     }
 
     private void shootBullet() {

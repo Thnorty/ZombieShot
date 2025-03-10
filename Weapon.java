@@ -6,7 +6,7 @@ public class Weapon extends Entity {
     protected double damage;
     protected int ammo;
     protected int totalAmmo;
-    protected int currentAmmo = 500;
+    protected int currentAmmo;
     protected int currentTotalAmmo;
     protected boolean canShoot = true;
     protected long lastShotTime = 0;
