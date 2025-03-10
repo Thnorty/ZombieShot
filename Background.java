@@ -248,7 +248,12 @@ public class Background implements Serializable {
         
         offsetX += dx;
         offsetY += dy;
-        
+        boolean limitMapSize = false;
+
+        if (!limitMapSize) {
+            return true;
+        }
+
         // Limit the map size by removing cells that are too far away
         if (Math.abs(offsetX) > TILE_SIZE * 50 || Math.abs(offsetY) > TILE_SIZE * 50) {
             // Reset offset and map when too far from origin
