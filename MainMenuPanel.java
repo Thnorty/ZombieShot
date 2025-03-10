@@ -22,6 +22,7 @@ public class MainMenuPanel extends JPanel {
     private CharacterSelectionPanel characterSelectionPanel;
     private JPanel mainMenuContentPanel;
     protected boolean startGameAfterSelection = false;
+    private ControlsPanel controlsPanel;
 
     public MainMenuPanel(GameInfo gameInfo) {
         this.gameInfo = gameInfo;
@@ -37,7 +38,7 @@ public class MainMenuPanel extends JPanel {
         mainMenuContentPanel.setOpaque(true);
 
         // Main menu text
-        JLabel mainMenuLabel = new JLabel("MAIN MENU");
+        JLabel mainMenuLabel = new JLabel("ZombieShot");
         mainMenuLabel.setForeground(Color.WHITE);
         mainMenuLabel.setFont(new Font("Impact", Font.BOLD, 72));
         mainMenuLabel.setHorizontalAlignment(SwingConstants.CENTER);
@@ -66,9 +67,20 @@ public class MainMenuPanel extends JPanel {
         });
         mainMenuContentPanel.add(loadButton);
         
-        // Exit button - adjust position
+        // Add a button between loadButton and exitButton:
+        JButton controlsButton = createButtonWithIcon("Controls", "assets/Icons/retro-controller.png");
+        controlsButton.setBounds(PANEL_WIDTH/2 - 125, PANEL_HEIGHT/2 + 170, 250, 60);
+        controlsButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                showControlsScreen();
+            }
+        });
+        mainMenuContentPanel.add(controlsButton);
+        
+        // Move the exit button down:
         JButton exitButton = createButtonWithIcon("Exit Game", "assets/Icons/power-button.png");
-        exitButton.setBounds(PANEL_WIDTH/2 - 125, PANEL_HEIGHT/2 + 170, 250, 60);
+        exitButton.setBounds(PANEL_WIDTH/2 - 125, PANEL_HEIGHT/2 + 240, 250, 60);
         exitButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -83,6 +95,11 @@ public class MainMenuPanel extends JPanel {
         characterSelectionPanel.setBounds(0, 0, PANEL_WIDTH, PANEL_HEIGHT);
         characterSelectionPanel.setVisible(false);
         add(characterSelectionPanel);
+
+        controlsPanel = new ControlsPanel(this);
+        controlsPanel.setBounds(0, 0, PANEL_WIDTH, PANEL_HEIGHT);
+        controlsPanel.setVisible(false);
+        add(controlsPanel);
 
         setVisible(true);
     }
@@ -155,5 +172,10 @@ public class MainMenuPanel extends JPanel {
                 "Load Error", 
                 JOptionPane.ERROR_MESSAGE);
         }
+    }
+
+    private void showControlsScreen() {
+        mainMenuContentPanel.setVisible(false);
+        controlsPanel.setVisible(true);
     }
 }
