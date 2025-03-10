@@ -189,6 +189,31 @@ public class Background implements Serializable {
         return true;
     }
     
+    public boolean isValidMoveForEntity(double entityX, double entityY, double dx, double dy, int entityWidth, int entityHeight) {
+        // Calculate future position
+        double newX = entityX + dx;
+        double newY = entityY + dy;
+        
+        // Calculate the world coordinates of the entity's center after movement
+        double entityWorldCenterX = newX + entityWidth/2 + offsetX;
+        double entityWorldCenterY = newY + entityHeight/2 + offsetY + 32;
+        
+        // Convert to cell coordinates
+        int centerCellX = (int)Math.floor(entityWorldCenterX / TILE_SIZE);
+        int centerCellY = (int)Math.floor(entityWorldCenterY / TILE_SIZE);
+        
+        // Check if this cell contains an obstacle
+        String key = centerCellX + "," + centerCellY;
+        if (cellPatterns.containsKey(key)) {
+            int tileIndex = cellPatterns.get(key);
+            boolean isObstacle = obstacleTileIndices.contains(tileIndex);
+            return !isObstacle;
+        }
+        
+        // If cell doesn't exist yet, it's a new cell - allow movement
+        return true;
+    }
+
     /**
      * Updates the background position based on player movement
      * @param dx Change in x position

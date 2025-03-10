@@ -616,14 +616,49 @@ public class GamePanel extends JPanel implements ActionListener {
                 }
 
                 if (reptileZombie.isJumping) {
-                    reptileZombie.updateJump();
+                    double moveX = reptileZombie.jumpDirectionX * reptileZombie.moveSpeed * ReptileZombie.JUMP_SPEED;
+                    double moveY = reptileZombie.jumpDirectionY * reptileZombie.moveSpeed * ReptileZombie.JUMP_SPEED;
+                    
+                    // Check if move is valid before applying it
+                    if (background.isValidMoveForEntity(zombie.x, zombie.y, moveX, moveY, zombie.width, zombie.height)) {
+                        reptileZombie.updateJump();
+                    } else {
+                        // If movement is blocked, stop jumping and try normal movement next frame
+                        reptileZombie.isJumping = false;
+                    }
                 } else {
-                    zombie.x += dx * zombie.moveSpeed;
-                    zombie.y += dy * zombie.moveSpeed;
+                    double moveX = dx * zombie.moveSpeed;
+                    double moveY = dy * zombie.moveSpeed;
+                    
+                    // Check if move is valid before applying it
+                    if (background.isValidMoveForEntity(zombie.x, zombie.y, moveX, moveY, zombie.width, zombie.height)) {
+                        zombie.x += moveX;
+                        zombie.y += moveY;
+                    } else {
+                        // Try to slide along walls by attempting to move in just X or Y direction
+                        if (background.isValidMoveForEntity(zombie.x, zombie.y, moveX, 0, zombie.width, zombie.height)) {
+                            zombie.x += moveX;
+                        } else if (background.isValidMoveForEntity(zombie.x, zombie.y, 0, moveY, zombie.width, zombie.height)) {
+                            zombie.y += moveY;
+                        }
+                    }
                 }
             } else {
-                zombie.x += dx * zombie.moveSpeed;
-                zombie.y += dy * zombie.moveSpeed;
+                double moveX = dx * zombie.moveSpeed;
+                double moveY = dy * zombie.moveSpeed;
+                
+                // Check if move is valid before applying it
+                if (background.isValidMoveForEntity(zombie.x, zombie.y, moveX, moveY, zombie.width, zombie.height)) {
+                    zombie.x += moveX;
+                    zombie.y += moveY;
+                } else {
+                    // Try to slide along walls by attempting to move in just X or Y direction
+                    if (background.isValidMoveForEntity(zombie.x, zombie.y, moveX, 0, zombie.width, zombie.height)) {
+                        zombie.x += moveX;
+                    } else if (background.isValidMoveForEntity(zombie.x, zombie.y, 0, moveY, zombie.width, zombie.height)) {
+                        zombie.y += moveY;
+                    }
+                }
             }
 
             // Store direction for flipping in the renderer
