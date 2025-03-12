@@ -2,6 +2,8 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.swing.Timer;
 import java.io.*;
+import java.util.HashMap;
+import java.awt.event.KeyEvent;
 
 public class GameInfo {
     protected final int ZOMBIES_PER_WAVE = 20;
@@ -23,6 +25,7 @@ public class GameInfo {
     protected List<Drop> drops = new ArrayList<>();
     protected Timer gameTimer;
     protected Timer zombieSpawnTimer;
+    protected HashMap<String, Integer> keyBindings = new HashMap<>();
 
     private int zombiesKilledLastWave = 0;
     protected int currentWave = 1;
@@ -33,6 +36,22 @@ public class GameInfo {
 
     public GameInfo() {
         player = new Player(0, 0, selectedCharacter);
+        
+        keyBindings.put("moveUp", KeyEvent.VK_W);
+        keyBindings.put("moveDown", KeyEvent.VK_S);
+        keyBindings.put("moveLeft", KeyEvent.VK_A);
+        keyBindings.put("moveRight", KeyEvent.VK_D);
+        keyBindings.put("reload", KeyEvent.VK_R);
+        keyBindings.put("weapon1", KeyEvent.VK_1);
+        keyBindings.put("weapon2", KeyEvent.VK_2);
+        keyBindings.put("weapon3", KeyEvent.VK_3);
+        keyBindings.put("weapon4", KeyEvent.VK_4);
+        keyBindings.put("weapon5", KeyEvent.VK_5);
+        keyBindings.put("pause", KeyEvent.VK_ESCAPE);
+        keyBindings.put("debug", KeyEvent.VK_F3);
+        
+        // Try to load saved keybindings
+        loadKeyBindings();
     }
 
     public void updateZombiesRemaining(int count) {
@@ -236,6 +255,65 @@ public class GameInfo {
             e.printStackTrace();
             return false;
         }
+    }
+
+    public boolean saveKeyBindings() {
+        try {
+            File saveDir = new File("saves");
+            if (!saveDir.exists()) {
+                saveDir.mkdirs();
+            }
+            
+            FileOutputStream fileOut = new FileOutputStream("saves/keybinds.dat");
+            ObjectOutputStream out = new ObjectOutputStream(fileOut);
+            
+            // Save key bindings hashmap
+            out.writeObject(keyBindings);
+            out.close();
+            fileOut.close();
+            
+            return true;
+        } catch (IOException e) {
+            System.err.println("Error saving keybindings: " + e.getMessage());
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public boolean loadKeyBindings() {
+        try {
+            File keybindsFile = new File("saves/keybinds.dat");
+            if (!keybindsFile.exists()) {
+                return false;
+            }
+            
+            FileInputStream fileIn = new FileInputStream(keybindsFile);
+            ObjectInputStream in = new ObjectInputStream(fileIn);
+            
+            // Load key bindings hashmap
+            @SuppressWarnings("unchecked")
+            HashMap<String, Integer> savedBindings = (HashMap<String, Integer>) in.readObject();
+            in.close();
+            fileIn.close();
+            
+            if (savedBindings != null) {
+                keyBindings = savedBindings;
+                return true;
+            }
+            return false;
+        } catch (IOException | ClassNotFoundException e) {
+            System.err.println("Error loading keybindings: " + e.getMessage());
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public int getKeyBinding(String action) {
+        return keyBindings.getOrDefault(action, 0);
+    }
+
+    public void setKeyBinding(String action, int keyCode) {
+        keyBindings.put(action, keyCode);
     }
 
     // The GameState class holds all serializable game data

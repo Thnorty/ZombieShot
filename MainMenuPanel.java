@@ -18,7 +18,7 @@ public class MainMenuPanel extends JPanel {
     private final int PANEL_WIDTH = GameFrame.WIDTH;
     private final int PANEL_HEIGHT = GameFrame.HEIGHT;
 
-    private GameInfo gameInfo;
+    protected GameInfo gameInfo;
     private CharacterSelectionPanel characterSelectionPanel;
     private JPanel mainMenuContentPanel;
     protected boolean startGameAfterSelection = false;

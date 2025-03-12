@@ -100,83 +100,69 @@ public class GamePanel extends JPanel implements ActionListener {
         addKeyListener(new KeyAdapter() {
             @Override
             public void keyPressed(KeyEvent evt) {
-                switch (evt.getKeyCode()) {
-                    case KeyEvent.VK_W:
-                        moveUp = true;
-                        break;
-                    case KeyEvent.VK_S:
-                        moveDown = true;
-                        break;
-                    case KeyEvent.VK_A:
-                        moveLeft = true;
-                        break;
-                    case KeyEvent.VK_D:
-                        moveRight = true;
-                        break;
-                    case KeyEvent.VK_R:
-                        gameInfo.player.reload();
+                int keyCode = evt.getKeyCode();
+                
+                if (keyCode == gameInfo.getKeyBinding("moveUp")) {
+                    moveUp = true;
+                } else if (keyCode == gameInfo.getKeyBinding("moveDown")) {
+                    moveDown = true;
+                } else if (keyCode == gameInfo.getKeyBinding("moveLeft")) {
+                    moveLeft = true;
+                } else if (keyCode == gameInfo.getKeyBinding("moveRight")) {
+                    moveRight = true;
+                } else if (keyCode == gameInfo.getKeyBinding("reload")) {
+                    gameInfo.player.reload();
+                    if (gameInfo.statPanel != null)
+                        gameInfo.statPanel.update();
+                } else if (keyCode == gameInfo.getKeyBinding("weapon1")) {
+                    if (gameInfo.player.weapons.size() >= 1) {
+                        gameInfo.player.currentWeapon = gameInfo.player.weapons.get(0);
                         if (gameInfo.statPanel != null)
                             gameInfo.statPanel.update();
-                        break;
-                    case KeyEvent.VK_1:
-                        if (gameInfo.player.weapons.size() >= 1) {
-                            gameInfo.player.currentWeapon = gameInfo.player.weapons.get(0);
-                            if (gameInfo.statPanel != null)
-                                gameInfo.statPanel.update();
-                        }
-                        break;
-                    case KeyEvent.VK_2:
-                        if (gameInfo.player.weapons.size() >= 2) {
-                            gameInfo.player.currentWeapon = gameInfo.player.weapons.get(1);
-                            if (gameInfo.statPanel != null)
-                                gameInfo.statPanel.update();
-                        }
-                        break;
-                    case KeyEvent.VK_3:
-                        if (gameInfo.player.weapons.size() >= 3) {
-                            gameInfo.player.currentWeapon = gameInfo.player.weapons.get(2);
-                            if (gameInfo.statPanel != null)
-                                gameInfo.statPanel.update();
-                        }
-                        break;
-                    case KeyEvent.VK_4:
-                        if (gameInfo.player.weapons.get(3) != null) {
-                            gameInfo.player.currentWeapon = gameInfo.player.weapons.get(3);
-                            if (gameInfo.statPanel != null)
-                                gameInfo.statPanel.update();
-                        }
-                        break;
-                    case KeyEvent.VK_5:
-                        if (gameInfo.player.weapons.get(4) != null) {
-                            gameInfo.player.currentWeapon = gameInfo.player.weapons.get(4);
-                            if (gameInfo.statPanel != null)
-                                gameInfo.statPanel.update();
-                        }
-                        break;
-                    case KeyEvent.VK_ESCAPE:
-                        togglePause();
-                        break;
-                    case KeyEvent.VK_F3:
-                        background.toggleDebugMode();
-                        break;
+                    }
+                } else if (keyCode == gameInfo.getKeyBinding("weapon2")) {
+                    if (gameInfo.player.weapons.size() >= 2) {
+                        gameInfo.player.currentWeapon = gameInfo.player.weapons.get(1);
+                        if (gameInfo.statPanel != null)
+                            gameInfo.statPanel.update();
+                    }
+                } else if (keyCode == gameInfo.getKeyBinding("weapon3")) {
+                    if (gameInfo.player.weapons.size() >= 3) {
+                        gameInfo.player.currentWeapon = gameInfo.player.weapons.get(2);
+                        if (gameInfo.statPanel != null)
+                            gameInfo.statPanel.update();
+                    }
+                } else if (keyCode == gameInfo.getKeyBinding("weapon4")) {
+                    if (gameInfo.player.weapons.size() >= 4) {
+                        gameInfo.player.currentWeapon = gameInfo.player.weapons.get(3);
+                        if (gameInfo.statPanel != null)
+                            gameInfo.statPanel.update();
+                    }
+                } else if (keyCode == gameInfo.getKeyBinding("weapon5")) {
+                    if (gameInfo.player.weapons.size() >= 5) {
+                        gameInfo.player.currentWeapon = gameInfo.player.weapons.get(4);
+                        if (gameInfo.statPanel != null)
+                            gameInfo.statPanel.update();
+                    }
+                } else if (keyCode == gameInfo.getKeyBinding("pause")) {
+                    togglePause();
+                } else if (keyCode == gameInfo.getKeyBinding("debug")) {
+                    background.toggleDebugMode();
                 }
             }
 
             @Override
             public void keyReleased(KeyEvent evt) {
-                switch (evt.getKeyCode()) {
-                    case KeyEvent.VK_W:
-                        moveUp = false;
-                        break;
-                    case KeyEvent.VK_S:
-                        moveDown = false;
-                        break;
-                    case KeyEvent.VK_A:
-                        moveLeft = false;
-                        break;
-                    case KeyEvent.VK_D:
-                        moveRight = false;
-                        break;
+                int keyCode = evt.getKeyCode();
+                
+                if (keyCode == gameInfo.getKeyBinding("moveUp")) {
+                    moveUp = false;
+                } else if (keyCode == gameInfo.getKeyBinding("moveDown")) {
+                    moveDown = false;
+                } else if (keyCode == gameInfo.getKeyBinding("moveLeft")) {
+                    moveLeft = false;
+                } else if (keyCode == gameInfo.getKeyBinding("moveRight")) {
+                    moveRight = false;
                 }
             }
         });
