@@ -174,14 +174,61 @@ public class MainMenuPanel extends JPanel {
 
     private JButton createTransparentButtonWithIcon(String text, String iconPath) {
         JButton button = new JButton(text) {
+            private boolean isHovered = false;
+            private boolean isPressed = false;
+            
+            {
+                // Initialize mouse listeners
+                addMouseListener(new java.awt.event.MouseAdapter() {
+                    public void mouseEntered(java.awt.event.MouseEvent evt) {
+                        isHovered = true;
+                        repaint();
+                    }
+                    
+                    public void mouseExited(java.awt.event.MouseEvent evt) {
+                        isHovered = false;
+                        isPressed = false;
+                        repaint();
+                    }
+                    
+                    public void mousePressed(java.awt.event.MouseEvent evt) {
+                        isPressed = true;
+                        repaint();
+                    }
+                    
+                    public void mouseReleased(java.awt.event.MouseEvent evt) {
+                        isPressed = false;
+                        repaint();
+                    }
+                });
+            }
+            
             @Override
             protected void paintComponent(Graphics g) {
                 Graphics2D g2d = (Graphics2D) g.create();
                 g2d.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
                 
-                // Draw semi-transparent background
-                g2d.setColor(new Color(40, 40, 40, 160));
+                // Draw semi-transparent background with animations
+                Color bgColor;
+                if (isPressed) {
+                    // Darker when pressed
+                    bgColor = new Color(30, 30, 30, 180);
+                } else if (isHovered) {
+                    // Brighter when hovered
+                    bgColor = new Color(60, 60, 60, 180);
+                } else {
+                    // Normal state
+                    bgColor = new Color(40, 40, 40, 160);
+                }
+                g2d.setColor(bgColor);
                 g2d.fillRoundRect(0, 0, getWidth(), getHeight(), 15, 15);
+                
+                // Add a glow effect on hover
+                if (isHovered && !isPressed) {
+                    g2d.setColor(new Color(100, 100, 255, 40));
+                    g2d.setStroke(new java.awt.BasicStroke(3f));
+                    g2d.drawRoundRect(2, 2, getWidth()-4, getHeight()-4, 15, 15);
+                }
                 
                 // Get the icon and text position
                 ImageIcon icon = (ImageIcon) getIcon();
@@ -189,12 +236,16 @@ public class MainMenuPanel extends JPanel {
                 int iconTextGap = getIconTextGap();
                 int iconWidth = icon != null ? icon.getIconWidth() : 0;
                 
-                int x = 20;
-                int textY = ((getHeight() - fm.getHeight()) / 2) + fm.getAscent();
+                // Calculate offsets for pressed effect
+                int offsetX = isPressed ? 2 : 0;
+                int offsetY = isPressed ? 2 : 0;
+                
+                int x = 20 + offsetX;
+                int textY = ((getHeight() - fm.getHeight()) / 2) + fm.getAscent() + offsetY;
                 
                 // Draw icon if exists
                 if (icon != null) {
-                    int iconY = (getHeight() - icon.getIconHeight()) / 2;
+                    int iconY = (getHeight() - icon.getIconHeight()) / 2 + offsetY;
                     icon.paintIcon(this, g2d, x, iconY);
                     x += iconWidth + iconTextGap;
                 }
@@ -203,13 +254,15 @@ public class MainMenuPanel extends JPanel {
                 g2d.setColor(new Color(0, 0, 0, 180));
                 g2d.drawString(getText(), x + 2, textY + 2);
                 
-                // Draw text
-                g2d.setColor(Color.WHITE);
+                // Draw text with color change on hover
+                Color textColor = isHovered ? (isPressed ? new Color(200, 200, 200) : Color.YELLOW) : Color.WHITE;
+                g2d.setColor(textColor);
                 g2d.drawString(getText(), x, textY);
                 
                 g2d.dispose();
             }
         };
+        
         button.setFont(new Font("Courier New", Font.BOLD, 28));
         button.setForeground(Color.WHITE);
         button.setContentAreaFilled(false);
