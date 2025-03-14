@@ -4,16 +4,11 @@ import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.Image;
-import java.io.File;
-import java.io.IOException;
-import javax.imageio.ImageIO;
-import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.SwingConstants;
 import javax.swing.JOptionPane;
-import javax.swing.BorderFactory;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.FontMetrics;
@@ -22,7 +17,6 @@ import java.awt.RenderingHints;
 public class MainMenuPanel extends JPanel {
     private final int PANEL_WIDTH = GameFrame.WIDTH;
     private final int PANEL_HEIGHT = GameFrame.HEIGHT;
-    private final String backgroundImagePath = "assets/Backgrounds/menu_background.png";
 
     protected GameInfo gameInfo;
     private CharacterSelectionPanel characterSelectionPanel;
@@ -35,10 +29,9 @@ public class MainMenuPanel extends JPanel {
         this.gameInfo = gameInfo;
         setPreferredSize(new Dimension(PANEL_WIDTH, PANEL_HEIGHT));
         setLayout(null);
-        try {
-            backgroundImage = ImageIO.read(new File(backgroundImagePath));
-        } catch (IOException e) {
-            System.err.println("Could not load background image: " + backgroundImagePath);
+        if (gameInfo.backgroundImage != null) {
+            backgroundImage = gameInfo.backgroundImage;
+        } else {
             setBackground(new Color(32, 32, 32));
         }
 
@@ -82,7 +75,7 @@ public class MainMenuPanel extends JPanel {
         mainMenuContentPanel.add(mainMenuLabel);
 
         // Start button
-        JButton startButton = createTransparentButtonWithIcon("Start New Game", "assets/Icons/play-button.png");
+        JButton startButton = UIUtils.createTransparentButtonWithIcon("Start New Game", "assets/Icons/play-button.png");
         startButton.setBounds(50, PANEL_HEIGHT/2 + 30, 350, 60);
         startButton.addActionListener(new ActionListener() {
             @Override
@@ -93,7 +86,7 @@ public class MainMenuPanel extends JPanel {
         mainMenuContentPanel.add(startButton);
 
         // Load Game button
-        JButton loadButton = createTransparentButtonWithIcon("Load Game", "assets/Icons/load.png");
+        JButton loadButton = UIUtils.createTransparentButtonWithIcon("Load Game", "assets/Icons/load.png");
         loadButton.setBounds(50, PANEL_HEIGHT/2 + 100, 250, 60);
         loadButton.addActionListener(new ActionListener() {
             @Override
@@ -104,7 +97,7 @@ public class MainMenuPanel extends JPanel {
         mainMenuContentPanel.add(loadButton);
         
         // Controls button
-        JButton controlsButton = createTransparentButtonWithIcon("Controls", "assets/Icons/retro-controller.png");
+        JButton controlsButton = UIUtils.createTransparentButtonWithIcon("Controls", "assets/Icons/retro-controller.png");
         controlsButton.setBounds(50, PANEL_HEIGHT/2 + 170, 250, 60);
         controlsButton.addActionListener(new ActionListener() {
             @Override
@@ -115,7 +108,7 @@ public class MainMenuPanel extends JPanel {
         mainMenuContentPanel.add(controlsButton);
         
         // Exit button
-        JButton exitButton = createTransparentButtonWithIcon("Exit Game", "assets/Icons/power-button.png");
+        JButton exitButton = UIUtils.createTransparentButtonWithIcon("Exit Game", "assets/Icons/power-button.png");
         exitButton.setBounds(50, PANEL_HEIGHT/2 + 240, 250, 60);
         exitButton.addActionListener(new ActionListener() {
             @Override
@@ -170,120 +163,6 @@ public class MainMenuPanel extends JPanel {
         startGameAfterSelection = true;
         mainMenuContentPanel.setVisible(false);
         characterSelectionPanel.setVisible(true);
-    }
-
-    private JButton createTransparentButtonWithIcon(String text, String iconPath) {
-        JButton button = new JButton(text) {
-            private boolean isHovered = false;
-            private boolean isPressed = false;
-            
-            {
-                // Initialize mouse listeners
-                addMouseListener(new java.awt.event.MouseAdapter() {
-                    public void mouseEntered(java.awt.event.MouseEvent evt) {
-                        isHovered = true;
-                        repaint();
-                    }
-                    
-                    public void mouseExited(java.awt.event.MouseEvent evt) {
-                        isHovered = false;
-                        isPressed = false;
-                        repaint();
-                    }
-                    
-                    public void mousePressed(java.awt.event.MouseEvent evt) {
-                        isPressed = true;
-                        repaint();
-                    }
-                    
-                    public void mouseReleased(java.awt.event.MouseEvent evt) {
-                        isPressed = false;
-                        repaint();
-                    }
-                });
-            }
-            
-            @Override
-            protected void paintComponent(Graphics g) {
-                Graphics2D g2d = (Graphics2D) g.create();
-                g2d.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
-                
-                // Draw semi-transparent background with animations
-                Color bgColor;
-                if (isPressed) {
-                    // Darker when pressed
-                    bgColor = new Color(30, 30, 30, 180);
-                } else if (isHovered) {
-                    // Brighter when hovered
-                    bgColor = new Color(60, 60, 60, 180);
-                } else {
-                    // Normal state
-                    bgColor = new Color(40, 40, 40, 160);
-                }
-                g2d.setColor(bgColor);
-                g2d.fillRoundRect(0, 0, getWidth(), getHeight(), 15, 15);
-                
-                // Add a glow effect on hover
-                if (isHovered && !isPressed) {
-                    g2d.setColor(new Color(100, 100, 255, 40));
-                    g2d.setStroke(new java.awt.BasicStroke(3f));
-                    g2d.drawRoundRect(2, 2, getWidth()-4, getHeight()-4, 15, 15);
-                }
-                
-                // Get the icon and text position
-                ImageIcon icon = (ImageIcon) getIcon();
-                FontMetrics fm = g2d.getFontMetrics();
-                int iconTextGap = getIconTextGap();
-                int iconWidth = icon != null ? icon.getIconWidth() : 0;
-                
-                // Calculate offsets for pressed effect
-                int offsetX = isPressed ? 2 : 0;
-                int offsetY = isPressed ? 2 : 0;
-                
-                int x = 20 + offsetX;
-                int textY = ((getHeight() - fm.getHeight()) / 2) + fm.getAscent() + offsetY;
-                
-                // Draw icon if exists
-                if (icon != null) {
-                    int iconY = (getHeight() - icon.getIconHeight()) / 2 + offsetY;
-                    icon.paintIcon(this, g2d, x, iconY);
-                    x += iconWidth + iconTextGap;
-                }
-                
-                // Draw text shadow
-                g2d.setColor(new Color(0, 0, 0, 180));
-                g2d.drawString(getText(), x + 2, textY + 2);
-                
-                // Draw text with color change on hover
-                Color textColor = isHovered ? (isPressed ? new Color(200, 200, 200) : Color.YELLOW) : Color.WHITE;
-                g2d.setColor(textColor);
-                g2d.drawString(getText(), x, textY);
-                
-                g2d.dispose();
-            }
-        };
-        
-        button.setFont(new Font("Courier New", Font.BOLD, 28));
-        button.setForeground(Color.WHITE);
-        button.setContentAreaFilled(false);
-        button.setBorderPainted(false);
-        button.setFocusPainted(false);
-        button.setBorder(BorderFactory.createEmptyBorder(10, 15, 10, 15));
-        button.setOpaque(false);
-        button.setHorizontalAlignment(SwingConstants.LEFT);
-        
-        try {
-            Image img = ImageIO.read(new File(iconPath));
-            Image resizedImg = img.getScaledInstance(36, 36, Image.SCALE_SMOOTH);
-            button.setIcon(new ImageIcon(resizedImg));
-            
-            button.setHorizontalTextPosition(JButton.RIGHT);
-            button.setIconTextGap(12);
-        } catch (IOException e) {
-            System.err.println("Could not load icon: " + iconPath);
-        }
-        
-        return button;
     }
 
     public void showMainMenuContent() {

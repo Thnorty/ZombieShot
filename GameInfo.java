@@ -1,8 +1,11 @@
 import java.util.ArrayList;
 import java.util.List;
+
+import javax.imageio.ImageIO;
 import javax.swing.Timer;
 import java.io.*;
 import java.util.HashMap;
+import java.awt.Image;
 import java.awt.event.KeyEvent;
 
 public class GameInfo {
@@ -13,6 +16,7 @@ public class GameInfo {
     protected final int ZOMBIE_SPAWN_RATE = 400;
     protected final float PLAYER_SPEED = 5.0f;
     protected final float BULLET_SPEED = 20.0f;
+    protected final String BACKGROUND_IMAGE_PATH = "assets/Backgrounds/menu_background.png";
 
     protected Player player;
     protected StatPanel statPanel;
@@ -26,6 +30,7 @@ public class GameInfo {
     protected Timer gameTimer;
     protected Timer zombieSpawnTimer;
     protected HashMap<String, Integer> keyBindings = new HashMap<>();
+    protected Image backgroundImage;
 
     private int zombiesKilledLastWave = 0;
     protected int currentWave = 1;
@@ -49,6 +54,12 @@ public class GameInfo {
         keyBindings.put("weapon5", KeyEvent.VK_5);
         keyBindings.put("pause", KeyEvent.VK_ESCAPE);
         keyBindings.put("debug", KeyEvent.VK_F3);
+
+        try {
+            backgroundImage = ImageIO.read(new File(BACKGROUND_IMAGE_PATH));
+        } catch (IOException e) {
+            System.err.println("Could not load background image: " + BACKGROUND_IMAGE_PATH);
+        }
         
         // Try to load saved keybindings
         loadKeyBindings();

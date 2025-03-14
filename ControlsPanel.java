@@ -1,9 +1,6 @@
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
-import javax.imageio.ImageIO;
-import java.io.File;
-import java.io.IOException;
 import java.util.HashMap;
 
 public class ControlsPanel extends JPanel {
@@ -14,14 +11,20 @@ public class ControlsPanel extends JPanel {
     private GameInfo gameInfo;
     private HashMap<String, JLabel> keyLabels = new HashMap<>();
     private String awaitingRebind = null;
+    private Image backgroundImage;
 
     public ControlsPanel(MainMenuPanel parentPanel) {
         this.parentPanel = parentPanel;
         this.gameInfo = parentPanel.gameInfo;
         setPreferredSize(new Dimension(PANEL_WIDTH, PANEL_HEIGHT));
-        setBackground(new Color(32, 32, 32));
         setLayout(null);
         setFocusable(true);
+        
+        if (gameInfo.backgroundImage != null) {
+            backgroundImage = gameInfo.backgroundImage;
+        } else {
+            setBackground(new Color(32, 32, 32));
+        }
 
         // Title
         JLabel titleLabel = new JLabel("GAME CONTROLS");
@@ -36,9 +39,10 @@ public class ControlsPanel extends JPanel {
         controlsInfoPanel.setBounds(PANEL_WIDTH/2 - 450, 150, 900, 550);
         add(controlsInfoPanel);
 
-        // Back button
-        backButton = createButtonWithIcon("Back to Menu", "assets/Icons/house.png");
-        backButton.setBounds(PANEL_WIDTH/2 - 150, PANEL_HEIGHT - 100, 300, 60);
+        // Back button - left-aligned like MainMenuPanel
+        int leftMargin = 50;
+        backButton = UIUtils.createTransparentButtonWithIcon("Back to Menu", "assets/Icons/house.png");
+        backButton.setBounds(leftMargin, PANEL_HEIGHT - 100, 300, 60);
         backButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -69,6 +73,32 @@ public class ControlsPanel extends JPanel {
                 }
             }
         });
+    }
+
+    @Override
+    protected void paintComponent(Graphics g) {
+        super.paintComponent(g);
+        
+        if (backgroundImage != null) {
+            int imgWidth = backgroundImage.getWidth(this);
+            int imgHeight = backgroundImage.getHeight(this);
+            
+            // Calculate scaling factor to cover the entire panel
+            double scale = Math.max(
+                (double) getWidth() / imgWidth,
+                (double) getHeight() / imgHeight
+            );
+            
+            // Calculate new dimensions
+            int scaledWidth = (int) (imgWidth * scale);
+            int scaledHeight = (int) (imgHeight * scale);
+            
+            // Center the scaled image (excess will be cropped)
+            int x = (getWidth() - scaledWidth) / 2;
+            int y = (getHeight() - scaledHeight) / 2;
+            
+            g.drawImage(backgroundImage, x, y, scaledWidth, scaledHeight, this);
+        }
     }
 
     private JPanel createControlsInfoPanel() {
@@ -148,7 +178,7 @@ public class ControlsPanel extends JPanel {
             keyLabel.setPreferredSize(new Dimension(140, 36));
             
             // Add rebind button
-            JButton rebindButton = new JButton("Rebind");
+            JButton rebindButton = UIUtils.createTransparentButton("Rebind", 16);
             rebindButton.setPreferredSize(new Dimension(80, 36));
             rebindButton.setActionCommand(action);
             rebindButton.addActionListener(new ActionListener() {
@@ -207,24 +237,6 @@ public class ControlsPanel extends JPanel {
                 updateButtonsInContainer((Container)c);
             }
         }
-    }
-    
-    private JButton createButtonWithIcon(String text, String iconPath) {
-        JButton button = new JButton(text);
-        button.setFont(new Font("Courier New", Font.BOLD, 24));
-        
-        try {
-            Image img = ImageIO.read(new File(iconPath));
-            Image resizedImg = img.getScaledInstance(32, 32, Image.SCALE_SMOOTH);
-            button.setIcon(new ImageIcon(resizedImg));
-            
-            button.setHorizontalTextPosition(JButton.RIGHT);
-            button.setIconTextGap(10);
-        } catch (IOException e) {
-            System.err.println("Could not load icon: " + iconPath);
-        }
-        
-        return button;
     }
 
     private void goBack() {

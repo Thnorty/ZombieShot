@@ -1,13 +1,13 @@
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.FontMetrics;
+import java.awt.RenderingHints;
+import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.Image;
-import java.io.File;
-import java.io.IOException;
-import javax.imageio.ImageIO;
-import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -18,6 +18,7 @@ public class GameOverPanel extends JPanel {
     private GameInfo gameInfo;
     private final int PANEL_WIDTH = GameFrame.WIDTH;
     private final int PANEL_HEIGHT = GameFrame.HEIGHT;
+    private Image backgroundImage;
 
     private String scoreText = "You survived %d waves, killed %d zombies and scored %d points";
     private String restartGameText = "Play Again";
@@ -32,29 +33,56 @@ public class GameOverPanel extends JPanel {
     public GameOverPanel(GameInfo gameInfo) {
         this.gameInfo = gameInfo;
         setPreferredSize(new Dimension(PANEL_WIDTH, PANEL_HEIGHT));
-        setBackground(new Color(32, 32, 32));
         setLayout(null);
         setVisible(false);
+        
+        if (gameInfo.backgroundImage != null) {
+            backgroundImage = gameInfo.backgroundImage;
+        } else {
+            setBackground(new Color(32, 32, 32));
+        }
 
-        // Game Over text
-        gameOverLabel = new JLabel("GAME OVER");
+        // Game Over text with shadow effect
+        gameOverLabel = new JLabel("GAME OVER") {
+            @Override
+            protected void paintComponent(Graphics g) {
+                Graphics2D g2d = (Graphics2D) g.create();
+                g2d.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+                
+                // Draw shadow
+                g2d.setColor(new Color(0, 0, 0, 180));
+                g2d.setFont(getFont());
+                FontMetrics fm = g2d.getFontMetrics();
+                g2d.drawString(getText(), 4, fm.getAscent() + 4);
+                
+                // Draw text
+                g2d.setColor(getForeground());
+                g2d.drawString(getText(), 0, fm.getAscent());
+                
+                g2d.dispose();
+            }
+        };
         gameOverLabel.setForeground(Color.RED);
         gameOverLabel.setFont(new Font("Impact", Font.BOLD, 72));
-        gameOverLabel.setHorizontalAlignment(SwingConstants.CENTER);
-        gameOverLabel.setBounds(0, PANEL_HEIGHT/4, PANEL_WIDTH, 80);
+        gameOverLabel.setHorizontalAlignment(SwingConstants.LEFT);
+        gameOverLabel.setBounds(50, PANEL_HEIGHT/4, PANEL_WIDTH, 80);
         add(gameOverLabel);
         
         // Score display
         scoreLabel = new JLabel(String.format(scoreText, gameInfo.currentWave-1, gameInfo.zombiesKilled, gameInfo.player.score));
         scoreLabel.setForeground(Color.WHITE);
         scoreLabel.setFont(new Font("Courier New", Font.BOLD, 28));
-        scoreLabel.setHorizontalAlignment(SwingConstants.CENTER);
-        scoreLabel.setBounds(0, PANEL_HEIGHT/4 + 100, PANEL_WIDTH, 40);
+        scoreLabel.setHorizontalAlignment(SwingConstants.LEFT);
+        scoreLabel.setBounds(50, PANEL_HEIGHT/4 + 100, PANEL_WIDTH - 100, 40);
         add(scoreLabel);
         
+        // Left-align all buttons like MainMenuPanel
+        int leftMargin = 50;
+        int buttonWidth = 250;
+        
         // Restart button
-        restartButton = createButtonWithIcon(restartGameText, "assets/Icons/cycle.png");
-        restartButton.setBounds(PANEL_WIDTH/2 - 125, PANEL_HEIGHT/2 + 50, 250, 60);
+        restartButton = UIUtils.createTransparentButtonWithIcon(restartGameText, "assets/Icons/cycle.png");
+        restartButton.setBounds(leftMargin, PANEL_HEIGHT/2 + 50, buttonWidth, 60);
         restartButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -64,8 +92,8 @@ public class GameOverPanel extends JPanel {
         add(restartButton);
         
         // Load save button
-        loadSaveButton = createButtonWithIcon(loadSaveText, "assets/Icons/load.png");
-        loadSaveButton.setBounds(PANEL_WIDTH/2 - 200, PANEL_HEIGHT/2 + 120, 400, 60);
+        loadSaveButton = UIUtils.createTransparentButtonWithIcon(loadSaveText, "assets/Icons/load.png");
+        loadSaveButton.setBounds(leftMargin, PANEL_HEIGHT/2 + 120, buttonWidth + 200, 60);
         loadSaveButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -74,9 +102,9 @@ public class GameOverPanel extends JPanel {
         });
         add(loadSaveButton);
         
-        // Exit button - moved down to accommodate the new button
-        exitButton = createButtonWithIcon(exitGameText, "assets/Icons/power-button.png");
-        exitButton.setBounds(PANEL_WIDTH/2 - 125, PANEL_HEIGHT/2 + 190, 250, 60);
+        // Exit button
+        exitButton = UIUtils.createTransparentButtonWithIcon(exitGameText, "assets/Icons/power-button.png");
+        exitButton.setBounds(leftMargin, PANEL_HEIGHT/2 + 190, buttonWidth, 60);
         exitButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -85,23 +113,31 @@ public class GameOverPanel extends JPanel {
         });
         add(exitButton);
     }
-
-    private JButton createButtonWithIcon(String text, String iconPath) {
-        JButton button = new JButton(text);
-        button.setFont(new Font("Courier New", Font.BOLD, 24));
+    
+    @Override
+    protected void paintComponent(Graphics g) {
+        super.paintComponent(g);
         
-        try {
-            Image img = ImageIO.read(new File(iconPath));
-            Image resizedImg = img.getScaledInstance(32, 32, Image.SCALE_SMOOTH);
-            button.setIcon(new ImageIcon(resizedImg));
+        if (backgroundImage != null) {
+            int imgWidth = backgroundImage.getWidth(this);
+            int imgHeight = backgroundImage.getHeight(this);
             
-            button.setHorizontalTextPosition(JButton.RIGHT);
-            button.setIconTextGap(10);
-        } catch (IOException e) {
-            System.err.println("Could not load icon: " + iconPath);
+            // Calculate scaling factor to cover the entire panel
+            double scale = Math.max(
+                (double) getWidth() / imgWidth,
+                (double) getHeight() / imgHeight
+            );
+            
+            // Calculate new dimensions
+            int scaledWidth = (int) (imgWidth * scale);
+            int scaledHeight = (int) (imgHeight * scale);
+            
+            // Center the scaled image (excess will be cropped)
+            int x = (getWidth() - scaledWidth) / 2;
+            int y = (getHeight() - scaledHeight) / 2;
+            
+            g.drawImage(backgroundImage, x, y, scaledWidth, scaledHeight, this);
         }
-        
-        return button;
     }
 
     public void updateStats() {
