@@ -5,9 +5,10 @@ import java.awt.Dimension;
 public class GameFrame extends JFrame {
     public static final int WIDTH = 1920;
     public static final int HEIGHT = 1080;
+    protected static final String GAME_TITLE = "ZombieShot";
 
     public GameFrame() {
-        setTitle("ZombieShot");
+        setTitle(GAME_TITLE);
         setResizable(false);
 
         // Use a layered pane for overlays
