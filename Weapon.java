@@ -9,11 +9,10 @@ import javax.sound.sampled.UnsupportedAudioFileException;
 public class Weapon extends Entity {
     private static final int WEAPON_SIZE = 64;
 
-    protected int shotsPerMinute;
     protected double shootingAngle;
     protected double damage;
     protected int maxAmmoInClip;
-    protected int currentAmmo;
+    protected int currentAmmo = 50;
     protected int currentTotalAmmo;
     protected boolean canShoot = true;
     protected long lastShotTime = 0;
@@ -22,18 +21,19 @@ public class Weapon extends Entity {
     protected long reloadTimeMs = 2000;
     protected String firingSoundPath;
     protected String reloadSoundPath;
+    protected long fireDelay;
 
     public Weapon(int x, int y, int shotsPerMinute, double shootingAngle, double damage, int maxAmmoInClip, String firingSoundPath, String reloadSoundPath) {
         this.x = x;
         this.y = y;
         this.width = WEAPON_SIZE;
         this.height = WEAPON_SIZE;
-        this.shotsPerMinute = shotsPerMinute;
         this.shootingAngle = shootingAngle;
         this.damage = damage;
         this.maxAmmoInClip = maxAmmoInClip;
         this.firingSoundPath = firingSoundPath;
         this.reloadSoundPath = reloadSoundPath;
+        this.fireDelay = 60000 / shotsPerMinute;
         calculateReloadTimeFromSound();
     }
     
@@ -65,11 +65,7 @@ public class Weapon extends Entity {
 
     public boolean canShoot() {
         if (!canShoot) {
-            // Calculate if enough time has passed since last shot
-            long currentTime = System.currentTimeMillis();
-            long fireDelay = 60000 / shotsPerMinute;
-            long difference = currentTime - lastShotTime;
-            if (difference >= fireDelay) {
+            if (System.currentTimeMillis() - lastShotTime >= fireDelay) {
                 canShoot = true;
             }
         }

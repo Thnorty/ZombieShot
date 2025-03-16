@@ -13,10 +13,7 @@ public class RocketLauncher extends Weapon {
     @Override
     public boolean canShoot() {
         if (!canShoot) {
-            long currentTime = System.currentTimeMillis();
-            long fireDelay = 60000 / shotsPerMinute;
-            long difference = currentTime - lastShotTime;
-            if (difference >= fireDelay) {
+            if (System.currentTimeMillis() - lastShotTime >= fireDelay) {
                 canShoot = true;
             }
         }

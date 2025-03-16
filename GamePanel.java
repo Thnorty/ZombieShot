@@ -863,10 +863,9 @@ public class GamePanel extends JPanel implements ActionListener {
         if (!currentWeapon.isReloading && !currentWeapon.canShoot() && currentWeapon.currentAmmo > 0) {
             long currentTime = System.currentTimeMillis();
             long lastShotTime = currentWeapon.lastShotTime;
-            long cooldownTime = 60000 / currentWeapon.shotsPerMinute;
 
             double elapsedTime = currentTime - lastShotTime;
-            double cooldownPercentage = Math.min(1.0, elapsedTime / cooldownTime);
+            double cooldownPercentage = Math.min(1.0, elapsedTime / currentWeapon.fireDelay);
 
             int barWidth = gameInfo.player.width;
             int barHeight = 5;
