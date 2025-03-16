@@ -576,6 +576,7 @@ public class GamePanel extends JPanel implements ActionListener {
                 for (Zombie zombie : gameInfo.zombies) {
                     if (!bullet.hitZombies.contains(zombie) && bullet.getBounds().intersects(zombie.getBounds())) {
                         if (bullet.getSourceWeapon() instanceof RocketLauncher) {
+                            GameInfo.playSound(((RocketLauncher)bullet.getSourceWeapon()).hitSoundPath);
                             applyBlastDamageToZombies(zombiesToRemove, bullet, zombie, RocketLauncher.BLAST_RADIUS);
                         } else {
                             zombie.health -= bullet.getDamage();
@@ -724,10 +725,14 @@ public class GamePanel extends JPanel implements ActionListener {
 
                         for (Weapon playerWeapon : gameInfo.player.weapons) {
                             if (playerWeapon != null && playerWeapon.getClass().equals(sourceWeapon.getClass())) {
-                                if (playerWeapon.currentTotalAmmo <= Integer.MAX_VALUE - ammoToAdd) {
-                                    playerWeapon.currentTotalAmmo += ammoToAdd;
-                                } else {
-                                    playerWeapon.currentTotalAmmo = Integer.MAX_VALUE;
+                                if (playerWeapon instanceof RocketLauncher) {
+                                    playerWeapon.currentAmmo += ammoToAdd;
+                                } else {                    
+                                    if (playerWeapon.currentTotalAmmo <= Integer.MAX_VALUE - ammoToAdd) {
+                                        playerWeapon.currentTotalAmmo += ammoToAdd;
+                                    } else {
+                                        playerWeapon.currentTotalAmmo = Integer.MAX_VALUE;
+                                    }
                                 }
                                 break;
                             }

@@ -99,17 +99,19 @@ public class Player extends Entity {
 
     public void reload() {
         Weapon currentWeapon = this.currentWeapon;
+
+        if (currentWeapon instanceof RocketLauncher) {
+            return;
+        }
+
+        currentWeapon.reload();
         
-        if (!currentWeapon.isReloading && currentWeapon.currentAmmo < currentWeapon.ammo && currentWeapon.currentTotalAmmo > 0) {
-            currentWeapon.isReloading = true;
-            currentWeapon.canShoot = true;
-            currentWeapon.reloadStartTime = System.currentTimeMillis();
-            
+        if (currentWeapon.isReloading) {
             new Thread(() -> {
                 try {
                     Thread.sleep(currentWeapon.reloadTimeMs);
                     
-                    int ammoNeeded = currentWeapon.ammo - currentWeapon.currentAmmo;
+                    int ammoNeeded = currentWeapon.maxAmmoInClip - currentWeapon.currentAmmo;
                     if (currentWeapon.currentTotalAmmo >= ammoNeeded) {
                         currentWeapon.currentAmmo += ammoNeeded;
                         currentWeapon.currentTotalAmmo -= ammoNeeded;
