@@ -97,7 +97,7 @@ public class MainMenuPanel extends JPanel {
         mainMenuContentPanel.add(loadButton);
         
         // Controls button
-        JButton controlsButton = UIUtils.createTransparentButtonWithIcon("Controls", "assets/Icons/retro-controller.png");
+        JButton controlsButton = UIUtils.createTransparentButtonWithIcon("Settings", "assets/Icons/retro-controller.png");
         controlsButton.setBounds(50, PANEL_HEIGHT/2 + 170, 250, 60);
         controlsButton.addActionListener(new ActionListener() {
             @Override
@@ -181,6 +181,7 @@ public class MainMenuPanel extends JPanel {
     }
 
     private void exitGame() {
+        MusicPlayer.dispose();
         System.exit(0);
     }
 

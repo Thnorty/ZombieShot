@@ -108,6 +108,7 @@ public class GameOverPanel extends JPanel {
         exitButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                MusicPlayer.dispose();
                 System.exit(0);
             }
         });

@@ -22,6 +22,7 @@ public class GameInfo {
     protected final float PLAYER_SPEED = 5.0f;
     protected final float BULLET_SPEED = 20.0f;
     protected final String BACKGROUND_IMAGE_PATH = "assets/Backgrounds/menu_background.png";
+    protected final String BACKGROUND_MUSIC_PATH = "assets/Musics/";
 
     protected Player player;
     protected StatPanel statPanel;
@@ -45,6 +46,7 @@ public class GameInfo {
     protected boolean isPaused = false;
 
     public GameInfo() {
+        startBackgroundMusic();
         player = new Player(0, 0, selectedCharacter);
         
         keyBindings.put("moveUp", KeyEvent.VK_W);
@@ -360,5 +362,18 @@ public class GameInfo {
                 }
             }).start();
         }
+    }
+    
+    public void startBackgroundMusic() {
+        MusicPlayer.initializePlaylist(BACKGROUND_MUSIC_PATH);
+        MusicPlayer.playRandomMusic();
+    }
+
+    public void stopBackgroundMusic() {
+        MusicPlayer.stopBackgroundMusic();
+    }
+
+    public void toggleMuteBackgroundMusic() {
+        MusicPlayer.toggleMute();
     }
 }

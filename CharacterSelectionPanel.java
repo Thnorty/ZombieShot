@@ -182,18 +182,43 @@ public class CharacterSelectionPanel extends JPanel {
         // Draw character preview
         if (!characterOptions.isEmpty()) {
             CharacterOption currentOption = characterOptions.get(selectedIndex);
-        
+            int maxWidth = 200;
+            int maxHeight = 200;
+            int y = GameFrame.HEIGHT/2 - maxHeight/2;
+
+            // Set up character name text
             String characterName = "Character " + currentOption.id;
             g.setFont(new Font("Courier New", Font.BOLD, 24));
-            g.setColor(Color.WHITE);
             FontMetrics fm = g.getFontMetrics();
             int nameWidth = fm.stringWidth(characterName);
-            g.drawString(characterName, GameFrame.WIDTH/2 - nameWidth/2, GameFrame.HEIGHT/2 + 150);
+            int nameHeight = fm.getHeight();
+            int textY = y - 20;
+            int textX = GameFrame.WIDTH/2 - nameWidth/2;
+            
+            // Add background rectangle with padding
+            int padding = 20;
+            int boxX = textX - padding;
+            int boxY = textY - nameHeight - 3;
+            int boxWidth = nameWidth + (padding * 2);
+            int boxHeight = nameHeight + padding;
+            
+            // Draw semi-transparent background with rounded corners
+            Graphics2D g2d = (Graphics2D) g;
+            Composite originalComposite = g2d.getComposite();
+            g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.7f));
+            g2d.setColor(new Color(0, 0, 0));
+            g2d.fillRoundRect(boxX, boxY, boxWidth, boxHeight, 10, 10);
+            g2d.setComposite(originalComposite);
+            
+            // Draw border for the name box
+            g2d.setColor(new Color(180, 180, 180));
+            g2d.drawRoundRect(boxX, boxY, boxWidth, boxHeight, 10, 10);
+            
+            // Draw the text (white color stands out against dark background)
+            g.setColor(Color.WHITE);
+            g.drawString(characterName, textX, textY);
             
             if (currentOption.image != null) {
-                int maxWidth = 200;
-                int maxHeight = 200;
-                
                 int origWidth = currentOption.image.getWidth();
                 int origHeight = currentOption.image.getHeight();
                 
@@ -207,10 +232,10 @@ public class CharacterSelectionPanel extends JPanel {
                     newWidth = (int)(((double)origWidth / origHeight) * maxHeight);
                 }
                 
-                int x = GameFrame.WIDTH/2 - newWidth/2;
-                int y = GameFrame.HEIGHT/2 - newHeight/2;
+                int imgX = GameFrame.WIDTH/2 - newWidth/2;
+                int imgY = GameFrame.HEIGHT/2 - newHeight/2;
                 
-                g.drawImage(currentOption.image, x, y, newWidth, newHeight, null);
+                g.drawImage(currentOption.image, imgX, imgY, newWidth, newHeight, null);
             }
         } else {
             // Display a message if no characters were found

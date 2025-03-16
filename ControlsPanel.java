@@ -27,7 +27,7 @@ public class ControlsPanel extends JPanel {
         }
 
         // Title
-        JLabel titleLabel = new JLabel("GAME CONTROLS");
+        JLabel titleLabel = new JLabel("GAME SETTINGS");
         titleLabel.setForeground(Color.WHITE);
         titleLabel.setFont(new Font("Impact", Font.BOLD, 72));
         titleLabel.setHorizontalAlignment(SwingConstants.CENTER);
@@ -36,7 +36,7 @@ public class ControlsPanel extends JPanel {
 
         // Create controls info panel
         JPanel controlsInfoPanel = createControlsInfoPanel();
-        controlsInfoPanel.setBounds(PANEL_WIDTH/2 - 450, 150, 900, 550);
+        controlsInfoPanel.setBounds(PANEL_WIDTH/2 - 450, 150, 900, 850);
         add(controlsInfoPanel);
 
         // Back button - left-aligned like MainMenuPanel
@@ -102,34 +102,57 @@ public class ControlsPanel extends JPanel {
     }
 
     private JPanel createControlsInfoPanel() {
-        JPanel mainPanel = new JPanel(new GridLayout(2, 2, 20, 20)); // 2x2 grid with gaps
+        JPanel mainPanel = new JPanel(new GridBagLayout());
         mainPanel.setBackground(new Color(40, 40, 40));
         mainPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 
-        // Create each control section
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.fill = GridBagConstraints.BOTH;
+        gbc.insets = new Insets(10, 10, 10, 10);
+
+        // Movement section
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        gbc.weightx = 0.5;
+        gbc.weighty = 0.5;
         mainPanel.add(createSectionPanel("Movement", new String[][]{
             {"moveUp", "Move Up"},
             {"moveDown", "Move Down"},
             {"moveLeft", "Move Left"},
             {"moveRight", "Move Right"}
-        }));
-        
+        }), gbc);
+
+        // Combat section
+        gbc.gridx = 1;
+        gbc.gridy = 0;
         mainPanel.add(createSectionPanel("Combat", new String[][]{
             {"reload", "Reload Weapon"}
-        }));
-        
+        }), gbc);
+
+        // Weapon Selection section
+        gbc.gridx = 0;
+        gbc.gridy = 1;
         mainPanel.add(createSectionPanel("Weapon Selection", new String[][]{
             {"weapon1", "Pistol"},
             {"weapon2", "Rifle"},
             {"weapon3", "Shotgun"},
             {"weapon4", "Sniper"},
             {"weapon5", "Rocket Launcher"}
-        }));
-        
+        }), gbc);
+
+        // Game Controls section
+        gbc.gridx = 1;
+        gbc.gridy = 1;
         mainPanel.add(createSectionPanel("Game Controls", new String[][]{
             {"pause", "Pause Game"},
             {"debug", "Toggle Debug Mode"}
-        }));
+        }), gbc);
+        
+        // Audio Controls section
+        gbc.gridx = 0;
+        gbc.gridy = 2;
+        gbc.gridwidth = 2;
+        mainPanel.add(createAudioControlsPanel(), gbc);
 
         return mainPanel;
     }
@@ -244,5 +267,83 @@ public class ControlsPanel extends JPanel {
         awaitingRebind = null;
         setVisible(false);
         parentPanel.showMainMenuContent();
+    }
+
+    private JPanel createAudioControlsPanel() {
+        JPanel audioPanel = new JPanel();
+        audioPanel.setLayout(new BorderLayout(10, 10));
+        audioPanel.setBorder(BorderFactory.createCompoundBorder(
+            BorderFactory.createLineBorder(Color.GRAY, 2),
+            BorderFactory.createEmptyBorder(10, 15, 15, 15)
+        ));
+        audioPanel.setBackground(new Color(50, 50, 50));
+
+        // Title
+        JLabel titleLabel = new JLabel("Audio Settings");
+        titleLabel.setFont(new Font("Arial", Font.BOLD, 26));
+        titleLabel.setForeground(Color.YELLOW);
+        titleLabel.setBorder(BorderFactory.createEmptyBorder(0, 0, 10, 0));
+        audioPanel.add(titleLabel, BorderLayout.NORTH);
+
+        // Content panel
+        JPanel controlsPanel = new JPanel();
+        controlsPanel.setLayout(new GridLayout(2, 1, 0, 20));
+        controlsPanel.setBackground(new Color(50, 50, 50));
+
+        // Volume slider row
+        JPanel volumePanel = new JPanel();
+        volumePanel.setLayout(new BorderLayout(10, 0));
+        volumePanel.setBackground(new Color(50, 50, 50));
+
+        JLabel volumeLabel = new JLabel("Volume:");
+        volumeLabel.setFont(new Font("Arial", Font.BOLD, 18));
+        volumeLabel.setForeground(Color.WHITE);
+        volumePanel.add(volumeLabel, BorderLayout.WEST);
+
+        // Current volume value as percentage
+        JLabel volumeValueLabel = new JLabel(Math.round(MusicPlayer.getVolume() * 100) + "%");
+        volumeValueLabel.setFont(new Font("Courier New", Font.BOLD, 18));
+        volumeValueLabel.setForeground(Color.WHITE);
+        volumeValueLabel.setPreferredSize(new Dimension(50, 30));
+        volumePanel.add(volumeValueLabel, BorderLayout.EAST);
+
+        // Slider
+        JSlider volumeSlider = new JSlider(JSlider.HORIZONTAL, 0, 100, (int)(MusicPlayer.getVolume() * 100));
+        volumeSlider.setMajorTickSpacing(25);
+        volumeSlider.setMinorTickSpacing(5);
+        volumeSlider.setPaintTicks(true);
+        volumeSlider.setBackground(new Color(50, 50, 50));
+        volumeSlider.setForeground(Color.WHITE);
+        volumeSlider.addChangeListener(e -> {
+            int value = volumeSlider.getValue();
+            float volumeValue = value / 100f;
+            MusicPlayer.setVolume(volumeValue);
+            volumeValueLabel.setText(value + "%");
+        });
+        volumePanel.add(volumeSlider, BorderLayout.CENTER);
+
+        // Mute toggle row
+        JPanel mutePanel = new JPanel();
+        mutePanel.setLayout(new BorderLayout(10, 0));
+        mutePanel.setBackground(new Color(50, 50, 50));
+
+        JLabel muteLabel = new JLabel("Mute Music:");
+        muteLabel.setFont(new Font("Arial", Font.BOLD, 18));
+        muteLabel.setForeground(Color.WHITE);
+        mutePanel.add(muteLabel, BorderLayout.WEST);
+
+        JCheckBox muteCheckBox = new JCheckBox();
+        muteCheckBox.setSelected(MusicPlayer.isMuted());
+        muteCheckBox.setBackground(new Color(50, 50, 50));
+        muteCheckBox.addActionListener(e -> {
+            MusicPlayer.toggleMute();
+        });
+        mutePanel.add(muteCheckBox, BorderLayout.EAST);
+
+        controlsPanel.add(volumePanel);
+        controlsPanel.add(mutePanel);
+        audioPanel.add(controlsPanel, BorderLayout.CENTER);
+
+        return audioPanel;
     }
 }

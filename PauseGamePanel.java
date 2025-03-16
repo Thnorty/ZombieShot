@@ -179,6 +179,7 @@ public class PauseGamePanel extends JPanel {
     }
     
     private void exitGame() {
+        MusicPlayer.dispose();
         System.exit(0);
     }
     
