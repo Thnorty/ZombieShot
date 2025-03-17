@@ -4,6 +4,7 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Scanner;
 import java.util.regex.Pattern;
 import javax.imageio.ImageIO;
 
@@ -121,8 +122,21 @@ public class CharacterSelectionPanel extends JPanel {
                 String numStr = folderName.substring(folderName.lastIndexOf('_') + 1);
                 int characterNum = Integer.parseInt(numStr);
                 
-                String characterPath = characterDir.getPath();
+                String characterName = "Character " + characterNum;
+                File nameFile = new File(characterDir, "name.txt");
+                if (nameFile.exists()) {
+                    try (Scanner scanner = new Scanner(nameFile)) {
+                        if (scanner.hasNextLine()) {
+                            String line = scanner.nextLine();
+                            if (line != null && !line.trim().isEmpty()) {
+                                characterName = line.trim();
+                            }
+                        }
+                    }
+                }
                 
+                String characterPath = characterDir.getPath();
+                    
                 // Find the first walking animation image to display
                 File walkingDir = new File(characterPath + "/walking");
                 
@@ -132,7 +146,7 @@ public class CharacterSelectionPanel extends JPanel {
                     
                     if (walkingFiles != null && walkingFiles.length > 0) {
                         BufferedImage characterImg = ImageIO.read(walkingFiles[0]);
-                        characterOptions.add(new CharacterOption(characterNum, characterImg));
+                        characterOptions.add(new CharacterOption(characterNum, characterImg, characterName));
                     } else {
                         // Try looking for any png in the character folder 
                         File[] files = characterDir.listFiles((dir, name) -> 
@@ -140,7 +154,7 @@ public class CharacterSelectionPanel extends JPanel {
                         
                         if (files != null && files.length > 0) {
                             BufferedImage characterImg = ImageIO.read(files[0]);
-                            characterOptions.add(new CharacterOption(characterNum, characterImg));
+                            characterOptions.add(new CharacterOption(characterNum, characterImg, characterName));
                         }
                     }
                 }
@@ -187,7 +201,7 @@ public class CharacterSelectionPanel extends JPanel {
             int y = GameFrame.HEIGHT/2 - maxHeight/2;
 
             // Set up character name text
-            String characterName = "Character " + currentOption.id;
+            String characterName = currentOption.name;
             g.setFont(new Font("Courier New", Font.BOLD, 24));
             FontMetrics fm = g.getFontMetrics();
             int nameWidth = fm.stringWidth(characterName);
@@ -302,10 +316,12 @@ public class CharacterSelectionPanel extends JPanel {
     private static class CharacterOption {
         int id;
         BufferedImage image;
+        String name;
         
-        CharacterOption(int id, BufferedImage image) {
+        CharacterOption(int id, BufferedImage image, String name) {
             this.id = id;
             this.image = image;
+            this.name = name;
         }
     }
 }
