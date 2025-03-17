@@ -33,6 +33,7 @@ public class GameInfo {
     protected List<Zombie> zombies = new ArrayList<>();
     protected List<Bullet> bullets = new ArrayList<>();
     protected List<Drop> drops = new ArrayList<>();
+    protected List<Animation> animations = new ArrayList<>();
     protected Timer gameTimer;
     protected Timer zombieSpawnTimer;
     protected HashMap<String, Integer> keyBindings = new HashMap<>();
@@ -69,7 +70,7 @@ public class GameInfo {
         }
         
         // Try to load saved keybindings
-        loadKeyBindings();
+        loadSettings();
     }
 
     public void updateZombiesRemaining(int count) {
@@ -275,32 +276,39 @@ public class GameInfo {
         }
     }
 
-    public boolean saveKeyBindings() {
+    public boolean saveSettings() {
         try {
             File saveDir = new File("saves");
             if (!saveDir.exists()) {
                 saveDir.mkdirs();
             }
             
-            FileOutputStream fileOut = new FileOutputStream("saves/keybinds.dat");
+            FileOutputStream fileOut = new FileOutputStream("saves/settings.dat");
             ObjectOutputStream out = new ObjectOutputStream(fileOut);
             
-            // Save key bindings hashmap
-            out.writeObject(keyBindings);
+            // Create a settings object with all settings
+            HashMap<String, Object> allSettings = new HashMap<>();
+            allSettings.put("keyBindings", keyBindings);
+            allSettings.put("musicVolume", MusicPlayer.getVolume());
+            allSettings.put("musicMuted", MusicPlayer.isMuted());
+    
+            // Save all settings
+            out.writeObject(allSettings);
             out.close();
             fileOut.close();
             
             return true;
         } catch (IOException e) {
-            System.err.println("Error saving keybindings: " + e.getMessage());
+            System.err.println("Error saving settings: " + e.getMessage());
             e.printStackTrace();
             return false;
         }
     }
 
-    public boolean loadKeyBindings() {
+    @SuppressWarnings("unchecked")
+    public boolean loadSettings() {
         try {
-            File keybindsFile = new File("saves/keybinds.dat");
+            File keybindsFile = new File("saves/settings.dat");
             if (!keybindsFile.exists()) {
                 return false;
             }
@@ -309,18 +317,35 @@ public class GameInfo {
             ObjectInputStream in = new ObjectInputStream(fileIn);
             
             // Load key bindings hashmap
-            @SuppressWarnings("unchecked")
-            HashMap<String, Integer> savedBindings = (HashMap<String, Integer>) in.readObject();
+            HashMap<String, Object> allSettings = (HashMap<String, Object>) in.readObject();
             in.close();
             fileIn.close();
-            
-            if (savedBindings != null) {
-                keyBindings = savedBindings;
+        
+            if (allSettings != null) {
+                // Load key bindings
+                if (allSettings.containsKey("keyBindings")) {
+                    keyBindings = (HashMap<String, Integer>) allSettings.get("keyBindings");
+                }
+                
+                // Load volume
+                if (allSettings.containsKey("musicVolume")) {
+                    float savedVolume = (Float) allSettings.get("musicVolume");
+                    MusicPlayer.setVolume(savedVolume);
+                }
+                
+                // Load mute state
+                if (allSettings.containsKey("musicMuted")) {
+                    boolean savedMuteState = (Boolean) allSettings.get("musicMuted");
+                    if (savedMuteState != MusicPlayer.isMuted()) {
+                        MusicPlayer.toggleMute();
+                    }
+                }
+                
                 return true;
             }
             return false;
         } catch (IOException | ClassNotFoundException e) {
-            System.err.println("Error loading keybindings: " + e.getMessage());
+            System.err.println("Error loading settings: " + e.getMessage());
             e.printStackTrace();
             return false;
         }

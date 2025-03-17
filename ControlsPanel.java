@@ -244,7 +244,7 @@ public class ControlsPanel extends JPanel {
         
         // Save keybindings when changes are made
         if (gameInfo != null && awaitingRebind == null) {
-            gameInfo.saveKeyBindings();
+            gameInfo.saveSettings();
         }
     }
     
@@ -319,6 +319,7 @@ public class ControlsPanel extends JPanel {
             float volumeValue = value / 100f;
             MusicPlayer.setVolume(volumeValue);
             volumeValueLabel.setText(value + "%");
+            gameInfo.saveSettings();
         });
         volumePanel.add(volumeSlider, BorderLayout.CENTER);
 
@@ -337,6 +338,7 @@ public class ControlsPanel extends JPanel {
         muteCheckBox.setBackground(new Color(50, 50, 50));
         muteCheckBox.addActionListener(e -> {
             MusicPlayer.toggleMute();
+            gameInfo.saveSettings();
         });
         mutePanel.add(muteCheckBox, BorderLayout.EAST);
 

@@ -485,6 +485,11 @@ public class GamePanel extends JPanel implements ActionListener {
                 g2d.fillRect((int)zombie.x, (int)zombie.y, 50, 50);
             }
         }
+
+        // Draw all active animations
+        for (Animation animation : gameInfo.animations) {
+            animation.draw(g2d);
+        }
     }
 
     // Game update loop
@@ -551,6 +556,7 @@ public class GamePanel extends JPanel implements ActionListener {
         List<Bullet> bulletsToRemove = new ArrayList<>();
         List<Zombie> zombiesToRemove = new ArrayList<>();
         List<Drop> dropsToRemove = new ArrayList<>();
+        List<Animation> animationsToRemove = new ArrayList<>();
 
         for (Bullet bullet : gameInfo.bullets) {
             // Move bullet in its direction
@@ -578,6 +584,15 @@ public class GamePanel extends JPanel implements ActionListener {
                         if (bullet.getSourceWeapon() instanceof RocketLauncher) {
                             GameInfo.playSound(((RocketLauncher)bullet.getSourceWeapon()).hitSoundPath);
                             applyBlastDamageToZombies(zombiesToRemove, bullet, zombie, RocketLauncher.BLAST_RADIUS);
+
+                            // Create an explosion
+                            int explosionSize = 200;
+                            Animation explosion = new Animation(
+                                zombie.getCenterX() - explosionSize/2, 
+                                zombie.getCenterY() - explosionSize/2,
+                                explosionSize, explosionSize, 50, false, "explosion");
+                            explosion.loadFrames("assets/Explosion");
+                            gameInfo.animations.add(explosion);
                         } else {
                             zombie.health -= bullet.getDamage();
                             if (zombie.health <= 0) {
@@ -747,6 +762,14 @@ public class GamePanel extends JPanel implements ActionListener {
             }
         }
 
+        for (Animation animation : gameInfo.animations) {
+            if (!animation.update()) {
+                animationsToRemove.add(animation);
+            }
+        }
+
+        // Remove animations that have finished
+        gameInfo.animations.removeAll(animationsToRemove);
         // Remove bullets that went off screen or hit zombies
         gameInfo.bullets.removeAll(bulletsToRemove);
         // Remove zombies that were hit

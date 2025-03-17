@@ -9,7 +9,7 @@ import java.util.concurrent.Executors;
 
 public class MusicPlayer {
     private static Clip musicClip;
-    private static float volume = 0.25f;
+    private static float volume = 0.1f;
     private static ExecutorService audioExecutor = Executors.newSingleThreadExecutor();
     private static boolean isMuted = false;
     private static List<String> musicPlaylist = new ArrayList<>();
