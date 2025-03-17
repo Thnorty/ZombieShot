@@ -15,11 +15,24 @@ import java.awt.Image;
 import java.awt.event.KeyEvent;
 
 public class GameInfo {
-    protected final int ZOMBIES_PER_WAVE = 10;
+    public enum GameDifficulty { NORMAL, HARD }
+
+    protected GameDifficulty currentDifficulty = GameDifficulty.NORMAL;
+
+    protected final int NORMAL_ZOMBIE_SPAWN_RATE = 400;
+    protected final int HARD_ZOMBIE_SPAWN_RATE = 200;
+    protected final int NORMAL_ZOMBIES_PER_WAVE = 10;
+    protected final int HARD_ZOMBIES_PER_WAVE = 15;
+    protected final int NORMAL_ZOMBIE_INCREASE_PERCENT = 50;
+    protected final int HARD_ZOMBIE_INCREASE_PERCENT = 75;
+
+    protected int currentZombieSpawnRate = NORMAL_ZOMBIE_SPAWN_RATE;
+    protected int currentZombiesPerWave = NORMAL_ZOMBIES_PER_WAVE;
+    protected int currentZombieIncreasePercent = NORMAL_ZOMBIE_INCREASE_PERCENT;
+
     protected final int ZOMBIE_INCREASE_PERCENT = 50;
     protected final float HEALTH_DROP_CHANCE = 0.01f;
     protected final float AMMO_DROP_CHANCE = 0.3f;
-    protected final int ZOMBIE_SPAWN_RATE = 400;
     protected final float PLAYER_SPEED = 5.0f;
     protected final float BULLET_SPEED = 20.0f;
     protected final String BACKGROUND_IMAGE_PATH = "assets/Backgrounds/menu_background.png";
@@ -50,7 +63,9 @@ public class GameInfo {
     public GameInfo() {
         startBackgroundMusic();
         player = new Player(0, 0, selectedCharacter);
-        
+
+        setDifficulty(GameDifficulty.NORMAL);
+
         keyBindings.put("moveUp", KeyEvent.VK_W);
         keyBindings.put("moveDown", KeyEvent.VK_S);
         keyBindings.put("moveLeft", KeyEvent.VK_A);
@@ -92,7 +107,27 @@ public class GameInfo {
     }
 
     public int getMaxZombiesPerWave() {
-        return zombiesKilledLastWave + ZOMBIES_PER_WAVE + (ZOMBIES_PER_WAVE * ZOMBIE_INCREASE_PERCENT * (currentWave - 1) / 100);
+        return zombiesKilledLastWave + currentZombiesPerWave + 
+               (currentZombiesPerWave * currentZombieIncreasePercent * (currentWave - 1) / 100);
+    }
+    
+    public void setDifficulty(GameDifficulty difficulty) {
+        this.currentDifficulty = difficulty;
+        
+        if (difficulty == GameDifficulty.HARD) {
+            currentZombieSpawnRate = HARD_ZOMBIE_SPAWN_RATE;
+            currentZombiesPerWave = HARD_ZOMBIES_PER_WAVE;
+            currentZombieIncreasePercent = HARD_ZOMBIE_INCREASE_PERCENT;
+        } else {
+            currentZombieSpawnRate = NORMAL_ZOMBIE_SPAWN_RATE;
+            currentZombiesPerWave = NORMAL_ZOMBIES_PER_WAVE;
+            currentZombieIncreasePercent = NORMAL_ZOMBIE_INCREASE_PERCENT;
+        }
+        
+        // Update the timer if it exists
+        if (zombieSpawnTimer != null) {
+            zombieSpawnTimer.setDelay(currentZombieSpawnRate);
+        }
     }
 
     public void addZombie(Zombie zombie) {
@@ -164,6 +199,9 @@ public class GameInfo {
         if (!zombieSpawnTimer.isRunning()) {
             zombieSpawnTimer.start();
         }
+        if (zombieSpawnTimer != null) {
+            zombieSpawnTimer.setDelay(currentZombieSpawnRate);
+        }
     }
 
     public boolean saveGame() {
@@ -189,6 +227,7 @@ public class GameInfo {
             state.zombiesKilled = this.zombiesKilled;
             state.zombiesSpawned = this.zombiesSpawned;
             state.zombiesKilledLastWave = this.zombiesKilledLastWave;
+            state.difficulty = this.currentDifficulty;
             
             // Save background itself instead of just the offset
             if (gamePanel != null && gamePanel.background != null) {
@@ -251,6 +290,7 @@ public class GameInfo {
             this.zombiesKilled = state.zombiesKilled;
             this.zombiesSpawned = state.zombiesSpawned;
             this.zombiesKilledLastWave = state.zombiesKilledLastWave;
+            this.currentDifficulty = state.difficulty;
             
             // Restore background
             if (gamePanel != null && state.background != null) {
@@ -371,6 +411,7 @@ public class GameInfo {
         int zombiesSpawned;
         int zombiesKilledLastWave;
         Background background;
+        GameDifficulty difficulty;
     }
 
     public static void playSound(String soundPath) {

@@ -38,6 +38,7 @@ public class StatPanel extends JPanel {
     private JLabel healthPercentLabel;
     private JLabel weaponNameLabel;
     private JLabel weaponImageLabel;
+    private JLabel difficultyLabel;
     private Image backgroundTexture;
 
     public StatPanel(GameInfo gameInfo) {
@@ -101,8 +102,16 @@ public class StatPanel extends JPanel {
         waveLabel.setForeground(new Color(255, 100, 100));
         waveLabel.setFont(new Font("Impact", Font.BOLD, 32));
         waveLabel.setHorizontalAlignment(SwingConstants.CENTER);
-        waveLabel.setBounds(0, 15, 200, 40);
+        waveLabel.setBounds(0, 5, 200, 40);
         wavePanel.add(waveLabel);
+        
+        // Difficulty indicator
+        difficultyLabel = new JLabel(gameInfo.currentDifficulty == GameInfo.GameDifficulty.HARD ? "HARD MODE" : "");
+        difficultyLabel.setForeground(new Color(255, 50, 50));
+        difficultyLabel.setFont(new Font("Impact", Font.BOLD, 14));
+        difficultyLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        difficultyLabel.setBounds(0, 45, 200, 20);
+        wavePanel.add(difficultyLabel);
         
         add(wavePanel);
 
@@ -278,6 +287,7 @@ public class StatPanel extends JPanel {
         zombiesRemainingLabel.setText(zombiesRemainingText + gameInfo.zombies.size());
         scoreLabel.setText(scoreText + gameInfo.player.score);
         waveLabel.setText(waveText + gameInfo.currentWave);
+        difficultyLabel.setText(gameInfo.currentDifficulty == GameInfo.GameDifficulty.HARD ? "HARD MODE" : "");
 
         int healthValue = (int)((gameInfo.player.health / Player.PLAYER_HEALTH) * 100);
         healthBar.setValue(healthValue);

@@ -24,6 +24,7 @@ public class MainMenuPanel extends JPanel {
     protected boolean startGameAfterSelection = false;
     private ControlsPanel controlsPanel;
     private Image backgroundImage;
+    private boolean startInHardMode = false;
 
     public MainMenuPanel(GameInfo gameInfo) {
         this.gameInfo = gameInfo;
@@ -74,20 +75,33 @@ public class MainMenuPanel extends JPanel {
         mainMenuLabel.setBounds(50, PANEL_HEIGHT/4, PANEL_WIDTH - 100, 80);
         mainMenuContentPanel.add(mainMenuLabel);
 
-        // Start button
+        // Add Start New Game button
         JButton startButton = UIUtils.createTransparentButtonWithIcon("Start New Game", "assets/Icons/play-button.png");
         startButton.setBounds(50, PANEL_HEIGHT/2 + 30, 350, 60);
         startButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                startInHardMode = false;
                 showCharacterSelectionForStart();
             }
         });
         mainMenuContentPanel.add(startButton);
 
+        // Add Start New Game+ button
+        JButton hardModeButton = UIUtils.createTransparentButtonWithIcon("Start New Game+", "assets/Icons/crowned-skull.png");
+        hardModeButton.setBounds(50, PANEL_HEIGHT/2 + 100, 350, 60);
+        hardModeButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                startInHardMode = true;
+                showCharacterSelectionForStart();
+            }
+        });
+        mainMenuContentPanel.add(hardModeButton);
+
         // Load Game button
         JButton loadButton = UIUtils.createTransparentButtonWithIcon("Load Game", "assets/Icons/load.png");
-        loadButton.setBounds(50, PANEL_HEIGHT/2 + 100, 250, 60);
+        loadButton.setBounds(50, PANEL_HEIGHT/2 + 170, 250, 60);
         loadButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -98,7 +112,7 @@ public class MainMenuPanel extends JPanel {
         
         // Controls button
         JButton controlsButton = UIUtils.createTransparentButtonWithIcon("Settings", "assets/Icons/retro-controller.png");
-        controlsButton.setBounds(50, PANEL_HEIGHT/2 + 170, 250, 60);
+        controlsButton.setBounds(50, PANEL_HEIGHT/2 + 240, 250, 60);
         controlsButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -109,7 +123,7 @@ public class MainMenuPanel extends JPanel {
         
         // Exit button
         JButton exitButton = UIUtils.createTransparentButtonWithIcon("Exit Game", "assets/Icons/power-button.png");
-        exitButton.setBounds(50, PANEL_HEIGHT/2 + 240, 250, 60);
+        exitButton.setBounds(50, PANEL_HEIGHT/2 + 310, 250, 60);
         exitButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -171,7 +185,15 @@ public class MainMenuPanel extends JPanel {
     }
 
     void startGame() {
+        // Set difficulty before restarting
+        if (startInHardMode) {
+            gameInfo.setDifficulty(GameInfo.GameDifficulty.HARD);
+        } else {
+            gameInfo.setDifficulty(GameInfo.GameDifficulty.NORMAL);
+        }
+        
         gameInfo.restartGame();
+        
         setVisible(false);
         gameInfo.gameOverPanel.setVisible(false);
         gameInfo.pauseGamePanel.setVisible(false);

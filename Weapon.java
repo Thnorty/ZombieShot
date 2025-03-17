@@ -12,7 +12,7 @@ public class Weapon extends Entity {
     protected double shootingAngle;
     protected double damage;
     protected int maxAmmoInClip;
-    protected int currentAmmo;
+    protected int currentAmmo = 500;
     protected int currentTotalAmmo;
     protected boolean canShoot = true;
     protected long lastShotTime = 0;

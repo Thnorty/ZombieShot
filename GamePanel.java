@@ -175,7 +175,7 @@ public class GamePanel extends JPanel implements ActionListener {
         gameInfo.gameTimer = new Timer(16, this);
         
         // Zombie spawn timer
-        gameInfo.zombieSpawnTimer = new Timer(gameInfo.ZOMBIE_SPAWN_RATE, new ActionListener() {
+        gameInfo.zombieSpawnTimer = new Timer(gameInfo.currentZombieSpawnRate, new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 spawnRandomZombie();
