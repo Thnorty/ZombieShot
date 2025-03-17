@@ -20,6 +20,10 @@ public class Entity implements Serializable {
     protected int height = 32;
     protected transient BufferedImage image;
     protected double rotation = 0;
+    protected boolean isFlashing = false;
+    protected long flashStartTime = 0;
+    protected static final long FLASH_DURATION = 150;
+
     protected static List<Entity> entities = new ArrayList<>();
 
     public Entity() {
@@ -84,5 +88,23 @@ public class Entity implements Serializable {
         if (!entities.contains(this)) {
             entities.add(this);
         }
+    }
+    
+    // Check if entity should be drawn with flash effect
+    public boolean isFlashing() {
+        if (!isFlashing) return false;
+        
+        long currentTime = System.currentTimeMillis();
+        if (currentTime - flashStartTime > FLASH_DURATION) {
+            isFlashing = false;
+            return false;
+        }
+        return true;
+    }
+    
+    // Trigger flash effect
+    public void startFlashEffect() {
+        isFlashing = true;
+        flashStartTime = System.currentTimeMillis();
     }
 }

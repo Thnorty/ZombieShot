@@ -201,7 +201,10 @@ public class StatPanel extends JPanel {
                 int w = (int)(getWidth() * ((double)val / getMaximum()));
                 
                 Color startColor, endColor;
-                if (val > 66) {
+                if (gameInfo.player.isFlashing()) {
+                    startColor = Color.WHITE;
+                    endColor = new Color(220, 220, 220);
+                } else if (val > 66) {
                     startColor = new Color(20, 200, 20);
                     endColor = new Color(100, 255, 100);
                 } else if (val > 33) {
@@ -279,10 +282,11 @@ public class StatPanel extends JPanel {
         int healthValue = (int)((gameInfo.player.health / Player.PLAYER_HEALTH) * 100);
         healthBar.setValue(healthValue);
         healthPercentLabel.setText(healthValue + "%");
-        healthBar.repaint();
         
         Color healthColor;
-        if (healthValue > 66) {
+        if (gameInfo.player.isFlashing()) {
+            healthColor = Color.WHITE;
+        } else if (healthValue > 66) {
             healthColor = new Color(100, 255, 100);
         } else if (healthValue > 33) {
             healthColor = new Color(255, 200, 0);
@@ -291,6 +295,7 @@ public class StatPanel extends JPanel {
         }
         
         healthPercentLabel.setForeground(healthColor);
+        healthBar.repaint();
     }
 
     private String getWeaponName(Weapon weapon) {

@@ -3,6 +3,7 @@ import javax.swing.Timer;
 import java.awt.event.ActionEvent;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.color.ColorSpace;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
@@ -10,11 +11,14 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
 import java.awt.geom.AffineTransform;
+import java.awt.image.BufferedImage;
+import java.awt.image.ColorConvertOp;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.AlphaComposite;
 import java.awt.Color;
 
 public class GamePanel extends JPanel implements ActionListener {
@@ -372,26 +376,35 @@ public class GamePanel extends JPanel implements ActionListener {
 
         // Draw player
         if (gameInfo.player.image != null) {
-            // Store original transform
             AffineTransform transform = g2d.getTransform();
             
-            // Determine if player should be flipped based on mouse position
-            boolean facingLeft = mouseX < gameInfo.player.getCenterX();
+            // Create a new transform for drawing the player
+            AffineTransform playerTransform = new AffineTransform();
             
-            if (facingLeft) {
-                // player is facing left: flip horizontally
-                AffineTransform playerTransform = new AffineTransform();
+            // Apply player position and flipping
+            if (gameInfo.player.facingLeft) {
                 playerTransform.translate(gameInfo.player.x + gameInfo.player.width, gameInfo.player.y);
                 playerTransform.scale(-1, 1);
-                g2d.setTransform(playerTransform);
-                g2d.drawImage(gameInfo.player.image, 0, 0, gameInfo.player.width, gameInfo.player.height, null);
             } else {
-                // player is facing right: draw normally
-                g2d.drawImage(gameInfo.player.image, (int)gameInfo.player.x, (int)gameInfo.player.y, 
-                             gameInfo.player.width, gameInfo.player.height, null);
+                playerTransform.translate(gameInfo.player.x, gameInfo.player.y);
             }
             
-            // Reset transform
+            g2d.setTransform(playerTransform);
+            
+            // Apply flash effect if player is flashing
+            if (gameInfo.player.isFlashing()) {
+                // Create a white version of the player image
+                ColorConvertOp op = new ColorConvertOp(
+                    ColorSpace.getInstance(ColorSpace.CS_GRAY), null);
+                BufferedImage flashImage = op.filter(gameInfo.player.image, null);
+                
+                // Draw with high brightness
+                g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1.0f));
+                g2d.drawImage(flashImage, 0, 0, gameInfo.player.width, gameInfo.player.height, null);
+            } else {
+                g2d.drawImage(gameInfo.player.image, 0, 0, gameInfo.player.width, gameInfo.player.height, null);
+            }
+            
             g2d.setTransform(transform);
         } else {
             g2d.setColor(Color.RED);
@@ -400,6 +413,7 @@ public class GamePanel extends JPanel implements ActionListener {
         drawCooldownBar(g2d);
         drawReloadingBar(g2d);
 
+        // Draw the gun
         gameInfo.player.updateGunPosition();
         if (gameInfo.player.currentWeapon != null && gameInfo.player.currentWeapon.image != null) {
             AffineTransform gunTransform = new AffineTransform();
@@ -436,7 +450,6 @@ public class GamePanel extends JPanel implements ActionListener {
 
             g2d.setTransform(gunTransform);
 
-            // Draw the gun
             g2d.drawImage(gameInfo.player.currentWeapon.image, (int)gameInfo.player.currentWeapon.x, (int)gameInfo.player.currentWeapon.y, 
                          gameInfo.player.currentWeapon.width, gameInfo.player.currentWeapon.height, null);
         }
@@ -466,23 +479,32 @@ public class GamePanel extends JPanel implements ActionListener {
         for (Zombie zombie : gameInfo.zombies) {
             if (zombie.image != null) {
                 AffineTransform transform = g2d.getTransform();
-        
-                // Create a new transform for drawing the zombie
                 AffineTransform zombieTransform = new AffineTransform();
+                
                 if (zombie.directionX < 0) {
-                    // Facing left: flip the image horizontally
                     zombieTransform.translate(zombie.x + zombie.width, zombie.y);
                     zombieTransform.scale(-1, 1);
-                    g2d.setTransform(zombieTransform);
-                    g2d.drawImage(zombie.image, 0, 0, zombie.width, zombie.height, null);
                 } else {
-                    g2d.drawImage(zombie.image, (int)zombie.x, (int)zombie.y, zombie.width, zombie.height, null);
+                    zombieTransform.translate(zombie.x, zombie.y);
                 }
+                
+                g2d.setTransform(zombieTransform);
+                
+                // Apply flash effect if zombie is flashing
+                if (zombie.isFlashing()) {
+                    // Create white version of zombie
+                    ColorConvertOp op = new ColorConvertOp(
+                        ColorSpace.getInstance(ColorSpace.CS_GRAY), null);
+                    BufferedImage flashImage = op.filter(zombie.image, null);
+                    
+                    g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1.0f));
+                    g2d.drawImage(flashImage, 0, 0, zombie.width, zombie.height, null);
+                } else {
+                    g2d.drawImage(zombie.image, 0, 0, zombie.width, zombie.height, null);
+                }
+                
                 g2d.setTransform(transform);
                 drawHealthBar(g2d, zombie);
-            } else {
-                g2d.setColor(Color.GREEN);
-                g2d.fillRect((int)zombie.x, (int)zombie.y, 50, 50);
             }
         }
 
@@ -573,6 +595,7 @@ public class GamePanel extends JPanel implements ActionListener {
                 // Check collision with player
                 if (bullet.getBounds().intersects(gameInfo.player.getBounds())) {
                     gameInfo.player.health -= bullet.getDamage();
+                    gameInfo.player.startFlashEffect();
                     if (gameInfo.statPanel != null) {
                         gameInfo.statPanel.update();
                     }
@@ -595,6 +618,7 @@ public class GamePanel extends JPanel implements ActionListener {
                             gameInfo.animations.add(explosion);
                         } else {
                             zombie.health -= bullet.getDamage();
+                            zombie.startFlashEffect();
                             if (zombie.health <= 0) {
                                 zombiesToRemove.add(zombie);
                                 gameInfo.player.kills++;
@@ -646,6 +670,7 @@ public class GamePanel extends JPanel implements ActionListener {
                     gameInfo.bullets.add(acidBullet);
                 } else {
                     gameInfo.player.health -= zombie.damage;
+                    gameInfo.player.startFlashEffect();
                     if (gameInfo.statPanel != null) {
                         gameInfo.statPanel.update();
                     }
@@ -799,6 +824,7 @@ public class GamePanel extends JPanel implements ActionListener {
             double distance = Math.sqrt(dx * dx + dy * dy);
             if (distance < blastRadius) {
                 targetZombie.health -= bullet.getDamage();
+                targetZombie.startFlashEffect();
                 if (targetZombie.health <= 0) {
                     zombiesToRemove.add(targetZombie);
                     gameInfo.player.kills++;
@@ -864,8 +890,10 @@ public class GamePanel extends JPanel implements ActionListener {
         double healthPercentage = (double)zombie.health / zombie.maxHealth;
         int filledWidth = (int)(barWidth * healthPercentage);
         
-        // Choose color based on health percentage
-        if (healthPercentage > 0.66) {
+        // Choose color based on health percentage or flash white if being hit
+        if (zombie.isFlashing()) {
+            g2d.setColor(Color.WHITE);
+        } else if (healthPercentage > 0.66) {
             g2d.setColor(Color.GREEN);
         } else if (healthPercentage > 0.33) {
             g2d.setColor(Color.ORANGE);

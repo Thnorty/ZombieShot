@@ -15,8 +15,8 @@ import java.awt.Image;
 import java.awt.event.KeyEvent;
 
 public class GameInfo {
-    protected final int ZOMBIES_PER_WAVE = 20;
-    protected final int ZOMBIE_INCREASE_PERCENT = 25;
+    protected final int ZOMBIES_PER_WAVE = 10;
+    protected final int ZOMBIE_INCREASE_PERCENT = 50;
     protected final float HEALTH_DROP_CHANCE = 0.01f;
     protected final float AMMO_DROP_CHANCE = 0.3f;
     protected final int ZOMBIE_SPAWN_RATE = 400;
