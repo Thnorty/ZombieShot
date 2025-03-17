@@ -82,8 +82,6 @@ public class MusicPlayer {
                     }
                 });
                 
-                musicClip.loop(Clip.LOOP_CONTINUOUSLY);
-                
                 musicClip.start();
             } catch (UnsupportedAudioFileException | IOException | LineUnavailableException e) {
                 System.err.println("Error playing background music: " + e.getMessage());
