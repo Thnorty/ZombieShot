@@ -25,10 +25,13 @@ public class GameInfo {
     protected final int HARD_ZOMBIES_PER_WAVE = 15;
     protected final int NORMAL_ZOMBIE_INCREASE_PERCENT = 50;
     protected final int HARD_ZOMBIE_INCREASE_PERCENT = 75;
+    protected final double NORMAL_ZOMBIE_SPEED_MULTIPLIER = 1.0;
+    protected final double HARD_ZOMBIE_SPEED_MULTIPLIER = 1.3;
 
     protected int currentZombieSpawnRate = NORMAL_ZOMBIE_SPAWN_RATE;
     protected int currentZombiesPerWave = NORMAL_ZOMBIES_PER_WAVE;
     protected int currentZombieIncreasePercent = NORMAL_ZOMBIE_INCREASE_PERCENT;
+    protected double currentZombieSpeedMultiplier = NORMAL_ZOMBIE_SPEED_MULTIPLIER;
 
     protected final int ZOMBIE_INCREASE_PERCENT = 50;
     protected final float HEALTH_DROP_CHANCE = 0.01f;
@@ -118,10 +121,18 @@ public class GameInfo {
             currentZombieSpawnRate = HARD_ZOMBIE_SPAWN_RATE;
             currentZombiesPerWave = HARD_ZOMBIES_PER_WAVE;
             currentZombieIncreasePercent = HARD_ZOMBIE_INCREASE_PERCENT;
+            currentZombieSpeedMultiplier = HARD_ZOMBIE_SPEED_MULTIPLIER;
+            for (Zombie zombie : zombies) {
+                zombie.moveSpeed *= HARD_ZOMBIE_SPEED_MULTIPLIER / NORMAL_ZOMBIE_SPEED_MULTIPLIER;
+            }
         } else {
             currentZombieSpawnRate = NORMAL_ZOMBIE_SPAWN_RATE;
             currentZombiesPerWave = NORMAL_ZOMBIES_PER_WAVE;
             currentZombieIncreasePercent = NORMAL_ZOMBIE_INCREASE_PERCENT;
+            currentZombieSpeedMultiplier = NORMAL_ZOMBIE_SPEED_MULTIPLIER;
+            for (Zombie zombie : zombies) {
+                zombie.moveSpeed *= NORMAL_ZOMBIE_SPEED_MULTIPLIER / HARD_ZOMBIE_SPEED_MULTIPLIER;
+            }
         }
         
         // Update the timer if it exists
@@ -158,7 +169,12 @@ public class GameInfo {
         if (zombieSpawnTimer != null && zombieSpawnTimer.isRunning()) {
             zombieSpawnTimer.stop();
         }
-
+        if (currentDifficulty == GameDifficulty.HARD) {
+            currentZombieSpeedMultiplier = HARD_ZOMBIE_SPEED_MULTIPLIER;
+        } else {
+            currentZombieSpeedMultiplier = NORMAL_ZOMBIE_SPEED_MULTIPLIER;
+        }
+    
         isPaused = false;
 
         player = new Player(0, 0, selectedCharacter);
@@ -291,6 +307,18 @@ public class GameInfo {
             this.zombiesSpawned = state.zombiesSpawned;
             this.zombiesKilledLastWave = state.zombiesKilledLastWave;
             this.currentDifficulty = state.difficulty;
+
+            if (this.currentDifficulty == GameDifficulty.HARD) {
+                this.currentZombieSpeedMultiplier = HARD_ZOMBIE_SPEED_MULTIPLIER;
+            } else {
+                this.currentZombieSpeedMultiplier = NORMAL_ZOMBIE_SPEED_MULTIPLIER;
+            }
+            
+            for (Zombie zombie : this.zombies) {
+                if (state.difficulty == GameDifficulty.HARD) {
+                    zombie.moveSpeed *= HARD_ZOMBIE_SPEED_MULTIPLIER / NORMAL_ZOMBIE_SPEED_MULTIPLIER;
+                }
+            }
             
             // Restore background
             if (gamePanel != null && state.background != null) {

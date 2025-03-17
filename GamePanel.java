@@ -228,15 +228,20 @@ public class GamePanel extends JPanel implements ActionListener {
             zombieVariety = 4;
         }
         int randomNumber = random.nextInt(zombieVariety);
+        Zombie newZombie;
+
         if (randomNumber == 0) {
-            gameInfo.addZombie(new NormalZombie(x, y));
+            newZombie = new NormalZombie(x, y);
         } else if (randomNumber == 1) {
-            gameInfo.addZombie(new ReptileZombie(x, y));
+            newZombie = new ReptileZombie(x, y);
         } else if (randomNumber == 2) {
-            gameInfo.addZombie(new TankZombie(x, y));
+            newZombie = new TankZombie(x, y);
         } else {
-            gameInfo.addZombie(new AcidicZombie(x, y));
+            newZombie = new AcidicZombie(x, y);
         }
+
+        newZombie.moveSpeed *= gameInfo.currentZombieSpeedMultiplier;
+        gameInfo.addZombie(newZombie);
     }
 
     public void centerplayer() {
@@ -609,9 +614,9 @@ public class GamePanel extends JPanel implements ActionListener {
                             applyBlastDamageToZombies(zombiesToRemove, bullet, zombie, RocketLauncher.BLAST_RADIUS);
 
                             // Create an explosion
-                            int explosionSize = 200;
+                            int explosionSize = (int) (RocketLauncher.BLAST_RADIUS * 1.5);
                             Animation explosion = new Animation(
-                                zombie.getCenterX() - explosionSize/2, 
+                                zombie.getCenterX() - explosionSize/2,
                                 zombie.getCenterY() - explosionSize/2,
                                 explosionSize, explosionSize, 50, false, "explosion");
                             explosion.loadFrames("assets/Explosion");
