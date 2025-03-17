@@ -287,63 +287,77 @@ public class ControlsPanel extends JPanel {
 
         // Content panel
         JPanel controlsPanel = new JPanel();
-        controlsPanel.setLayout(new GridLayout(2, 1, 0, 20));
+        controlsPanel.setLayout(new GridLayout(3, 1, 0, 20));
         controlsPanel.setBackground(new Color(50, 50, 50));
 
-        // Volume slider row
-        JPanel volumePanel = new JPanel();
-        volumePanel.setLayout(new BorderLayout(10, 0));
-        volumePanel.setBackground(new Color(50, 50, 50));
+        // Music Volume slider row
+        JPanel musicVolumePanel = new JPanel();
+        musicVolumePanel.setLayout(new BorderLayout(10, 0));
+        musicVolumePanel.setBackground(new Color(50, 50, 50));
 
-        JLabel volumeLabel = new JLabel("Volume:");
-        volumeLabel.setFont(new Font("Arial", Font.BOLD, 18));
-        volumeLabel.setForeground(Color.WHITE);
-        volumePanel.add(volumeLabel, BorderLayout.WEST);
+        JLabel musicVolumeLabel = new JLabel("Music Volume:");
+        musicVolumeLabel.setFont(new Font("Arial", Font.BOLD, 18));
+        musicVolumeLabel.setForeground(Color.WHITE);
+        musicVolumePanel.add(musicVolumeLabel, BorderLayout.WEST);
 
         // Current volume value as percentage
-        JLabel volumeValueLabel = new JLabel(Math.round(MusicPlayer.getVolume() * 100) + "%");
-        volumeValueLabel.setFont(new Font("Courier New", Font.BOLD, 18));
-        volumeValueLabel.setForeground(Color.WHITE);
-        volumeValueLabel.setPreferredSize(new Dimension(50, 30));
-        volumePanel.add(volumeValueLabel, BorderLayout.EAST);
+        JLabel musicVolumeValueLabel = new JLabel(Math.round(MusicPlayer.getMusicVolume() * 100) + "%");
+        musicVolumeValueLabel.setFont(new Font("Courier New", Font.BOLD, 18));
+        musicVolumeValueLabel.setForeground(Color.WHITE);
+        musicVolumeValueLabel.setPreferredSize(new Dimension(50, 30));
+        musicVolumePanel.add(musicVolumeValueLabel, BorderLayout.EAST);
 
         // Slider
-        JSlider volumeSlider = new JSlider(JSlider.HORIZONTAL, 0, 100, (int)(MusicPlayer.getVolume() * 100));
-        volumeSlider.setMajorTickSpacing(25);
-        volumeSlider.setMinorTickSpacing(5);
-        volumeSlider.setPaintTicks(true);
-        volumeSlider.setBackground(new Color(50, 50, 50));
-        volumeSlider.setForeground(Color.WHITE);
-        volumeSlider.addChangeListener(e -> {
-            int value = volumeSlider.getValue();
+        JSlider musicVolumeSlider = new JSlider(JSlider.HORIZONTAL, 0, 100, (int)(MusicPlayer.getMusicVolume() * 100));
+        musicVolumeSlider.setMajorTickSpacing(25);
+        musicVolumeSlider.setMinorTickSpacing(5);
+        musicVolumeSlider.setPaintTicks(true);
+        musicVolumeSlider.setBackground(new Color(50, 50, 50));
+        musicVolumeSlider.setForeground(Color.WHITE);
+        musicVolumeSlider.addChangeListener(e -> {
+            int value = musicVolumeSlider.getValue();
             float volumeValue = value / 100f;
-            MusicPlayer.setVolume(volumeValue);
-            volumeValueLabel.setText(value + "%");
+            MusicPlayer.setMusicVolume(volumeValue);
+            musicVolumeValueLabel.setText(value + "%");
             gameInfo.saveSettings();
         });
-        volumePanel.add(volumeSlider, BorderLayout.CENTER);
+        musicVolumePanel.add(musicVolumeSlider, BorderLayout.CENTER);
+        
+        // Sound Effects Volume slider row
+        JPanel sfxVolumePanel = new JPanel();
+        sfxVolumePanel.setLayout(new BorderLayout(10, 0));
+        sfxVolumePanel.setBackground(new Color(50, 50, 50));
 
-        // Mute toggle row
-        JPanel mutePanel = new JPanel();
-        mutePanel.setLayout(new BorderLayout(10, 0));
-        mutePanel.setBackground(new Color(50, 50, 50));
+        JLabel sfxVolumeLabel = new JLabel("SFX Volume:");
+        sfxVolumeLabel.setFont(new Font("Arial", Font.BOLD, 18));
+        sfxVolumeLabel.setForeground(Color.WHITE);
+        sfxVolumePanel.add(sfxVolumeLabel, BorderLayout.WEST);
 
-        JLabel muteLabel = new JLabel("Mute Music:");
-        muteLabel.setFont(new Font("Arial", Font.BOLD, 18));
-        muteLabel.setForeground(Color.WHITE);
-        mutePanel.add(muteLabel, BorderLayout.WEST);
+        // Current SFX volume value as percentage
+        JLabel sfxVolumeValueLabel = new JLabel(Math.round(MusicPlayer.getSfxVolume() * 100) + "%");
+        sfxVolumeValueLabel.setFont(new Font("Courier New", Font.BOLD, 18));
+        sfxVolumeValueLabel.setForeground(Color.WHITE);
+        sfxVolumeValueLabel.setPreferredSize(new Dimension(50, 30));
+        sfxVolumePanel.add(sfxVolumeValueLabel, BorderLayout.EAST);
 
-        JCheckBox muteCheckBox = new JCheckBox();
-        muteCheckBox.setSelected(MusicPlayer.isMuted());
-        muteCheckBox.setBackground(new Color(50, 50, 50));
-        muteCheckBox.addActionListener(e -> {
-            MusicPlayer.toggleMute();
+        // SFX Slider
+        JSlider sfxVolumeSlider = new JSlider(JSlider.HORIZONTAL, 0, 100, (int)(MusicPlayer.getSfxVolume() * 100));
+        sfxVolumeSlider.setMajorTickSpacing(25);
+        sfxVolumeSlider.setMinorTickSpacing(5);
+        sfxVolumeSlider.setPaintTicks(true);
+        sfxVolumeSlider.setBackground(new Color(50, 50, 50));
+        sfxVolumeSlider.setForeground(Color.WHITE);
+        sfxVolumeSlider.addChangeListener(e -> {
+            int value = sfxVolumeSlider.getValue();
+            float volumeValue = value / 100f;
+            MusicPlayer.setSfxVolume(volumeValue);
+            sfxVolumeValueLabel.setText(value + "%");
             gameInfo.saveSettings();
         });
-        mutePanel.add(muteCheckBox, BorderLayout.EAST);
+        sfxVolumePanel.add(sfxVolumeSlider, BorderLayout.CENTER);
 
-        controlsPanel.add(volumePanel);
-        controlsPanel.add(mutePanel);
+        controlsPanel.add(musicVolumePanel);
+        controlsPanel.add(sfxVolumePanel);
         audioPanel.add(controlsPanel, BorderLayout.CENTER);
 
         return audioPanel;

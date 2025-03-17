@@ -9,9 +9,9 @@ import java.util.concurrent.Executors;
 
 public class MusicPlayer {
     private static Clip musicClip;
-    private static float volume = 0.1f;
+    private static float musicVolume = 0.1f;
+    private static float sfxVolume = 1f;
     private static ExecutorService audioExecutor = Executors.newSingleThreadExecutor();
-    private static boolean isMuted = false;
     private static List<String> musicPlaylist = new ArrayList<>();
     private static String currentTrack = null;
     private static Random random = new Random();
@@ -72,7 +72,7 @@ public class MusicPlayer {
                 musicClip = AudioSystem.getClip();
                 musicClip.open(audioStream);
                 
-                setVolume(volume);
+                setMusicVolume(musicVolume);
 
 				musicClip.addLineListener(event -> {
                     if (event.getType() == LineEvent.Type.STOP && !musicClip.isRunning()) {
@@ -96,11 +96,17 @@ public class MusicPlayer {
         }
     }
     
-    public static void setVolume(float volume) {
+    public static void setSfxVolume(float volume) {
         if (volume < 0f || volume > 1f)
             return;
             
-        MusicPlayer.volume = volume;
+        MusicPlayer.sfxVolume = volume;
+    }
+    public static void setMusicVolume(float volume) {
+        if (volume < 0f || volume > 1f)
+            return;
+            
+        MusicPlayer.musicVolume = volume;
         
         if (musicClip != null) {
             FloatControl gainControl = (FloatControl) musicClip.getControl(FloatControl.Type.MASTER_GAIN);
@@ -112,28 +118,12 @@ public class MusicPlayer {
         }
     }
 	
-    public static float getVolume() {
-        return volume;
-    }
-    
-    public static void toggleMute() {
-        isMuted = !isMuted;
-        
-        if (musicClip != null) {
-            FloatControl gainControl = (FloatControl) musicClip.getControl(FloatControl.Type.MASTER_GAIN);
-            if (gainControl != null) {
-                if (isMuted) {
-                    gainControl.setValue(gainControl.getMinimum());
-                } else {
-                    float dB = (float) (Math.log(volume) / Math.log(10.0) * 20.0);
-                    gainControl.setValue(dB);
-                }
-            }
-        }
+    public static float getMusicVolume() {
+        return musicVolume;
     }
 
-    public static boolean isMuted() {
-        return isMuted;
+    public static float getSfxVolume() {
+        return sfxVolume;
     }
     
     public static void dispose() {

@@ -5,6 +5,7 @@ import javax.imageio.ImageIO;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Clip;
+import javax.sound.sampled.FloatControl;
 import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.UnsupportedAudioFileException;
 import javax.swing.Timer;
@@ -289,8 +290,8 @@ public class GameInfo {
             // Create a settings object with all settings
             HashMap<String, Object> allSettings = new HashMap<>();
             allSettings.put("keyBindings", keyBindings);
-            allSettings.put("musicVolume", MusicPlayer.getVolume());
-            allSettings.put("musicMuted", MusicPlayer.isMuted());
+            allSettings.put("musicVolume", MusicPlayer.getMusicVolume());
+            allSettings.put("sfxVolume", MusicPlayer.getSfxVolume());
     
             // Save all settings
             out.writeObject(allSettings);
@@ -327,18 +328,16 @@ public class GameInfo {
                     keyBindings = (HashMap<String, Integer>) allSettings.get("keyBindings");
                 }
                 
-                // Load volume
+                // Load music volume
                 if (allSettings.containsKey("musicVolume")) {
                     float savedVolume = (Float) allSettings.get("musicVolume");
-                    MusicPlayer.setVolume(savedVolume);
+                    MusicPlayer.setMusicVolume(savedVolume);
                 }
-                
-                // Load mute state
-                if (allSettings.containsKey("musicMuted")) {
-                    boolean savedMuteState = (Boolean) allSettings.get("musicMuted");
-                    if (savedMuteState != MusicPlayer.isMuted()) {
-                        MusicPlayer.toggleMute();
-                    }
+
+                // Load sfx volume
+                if (allSettings.containsKey("sfxVolume")) {
+                    float savedVolume = (Float) allSettings.get("sfxVolume");
+                    MusicPlayer.setSfxVolume(savedVolume);
                 }
                 
                 return true;
@@ -381,6 +380,13 @@ public class GameInfo {
                     AudioInputStream audioStream = AudioSystem.getAudioInputStream(new File(soundPath));
                     Clip clip = AudioSystem.getClip();
                     clip.open(audioStream);
+
+                    FloatControl gainControl = (FloatControl) clip.getControl(FloatControl.Type.MASTER_GAIN);
+                    if (gainControl != null) {
+                        float dB = (float) (Math.log(MusicPlayer.getSfxVolume()) / Math.log(10.0) * 20.0);
+                        gainControl.setValue(dB);
+                    }
+
                     clip.start();
                 } catch (UnsupportedAudioFileException | IOException | LineUnavailableException e) {
                     System.err.println("Error playing sound: " + e.getMessage());
@@ -396,9 +402,5 @@ public class GameInfo {
 
     public void stopBackgroundMusic() {
         MusicPlayer.stopBackgroundMusic();
-    }
-
-    public void toggleMuteBackgroundMusic() {
-        MusicPlayer.toggleMute();
     }
 }
