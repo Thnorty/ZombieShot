@@ -5,7 +5,7 @@ public class RocketLauncher extends Weapon {
     protected String hitSoundPath = "assets/WeaponSounds/Hit/rocket_launcher.wav";
 
     public RocketLauncher() {
-        super(0, 0, 25, 0, 80, 0, "assets/WeaponSounds/Firing/rocket_launcher.wav", "assets/WeaponSounds/Reload/rocket_launcher.wav");
+        super(0, 0, 25, 0, 80, 5, "assets/WeaponSounds/Firing/rocket_launcher.wav", "assets/WeaponSounds/Reload/rocket_launcher.wav");
         this.appearanceImagePath = "assets/Weapons/rocket_launcher.png";
         setImage(new File(appearanceImagePath));
     }

@@ -849,7 +849,6 @@ public class GamePanel extends JPanel implements ActionListener {
             HealthDrop healthDrop = new HealthDrop(zombie.getCenterX(), zombie.getCenterY());
             gameInfo.addDrop(healthDrop);
         } else if (random.nextFloat() < gameInfo.AMMO_DROP_CHANCE) {
-            int ammoAmount = 30 + random.nextInt(10);
             Weapon randomWeapon;
             int randomWeaponVariety;
             if (gameInfo.currentWave == 1) {
@@ -874,7 +873,7 @@ public class GamePanel extends JPanel implements ActionListener {
                 } else {
                     randomWeapon = new RocketLauncher();
                 }
-                AmmoDrop ammoDrop = new AmmoDrop(zombie.getCenterX(), zombie.getCenterY(), ammoAmount, randomWeapon);
+                AmmoDrop ammoDrop = new AmmoDrop(zombie.getCenterX(), zombie.getCenterY(), randomWeapon);
                 gameInfo.addDrop(ammoDrop);
             }
         }

@@ -9,7 +9,7 @@ import java.util.concurrent.Executors;
 
 public class MusicPlayer {
     private static Clip musicClip;
-    private static float musicVolume = 0.1f;
+    private static float musicVolume = 0.2f;
     private static float sfxVolume = 0.75f;
     private static ExecutorService audioExecutor = Executors.newSingleThreadExecutor();
     private static List<String> musicPlaylist = new ArrayList<>();
