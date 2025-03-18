@@ -7,7 +7,7 @@ public class Bullet extends Entity {
     protected ArrayList<Zombie> hitZombies = new ArrayList<Zombie>();
     protected boolean isZombieBullet = false;
     protected double damage = 0;
-    private Weapon sourceWeapon;
+    protected Weapon sourceWeapon;
 
     public Bullet(double x, double y, Weapon sourceWeapon) {
         super(x, y);

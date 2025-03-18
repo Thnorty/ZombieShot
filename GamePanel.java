@@ -20,10 +20,26 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.AlphaComposite;
 import java.awt.Color;
+import java.awt.RenderingHints;
 
 public class GamePanel extends JPanel implements ActionListener {
     private final int PANEL_WIDTH = GameFrame.WIDTH;
     private final int PANEL_HEIGHT = GameFrame.HEIGHT - StatPanel.HEIGHT;
+    
+    // Performance optimization variables
+    private int targetFPS = 120;
+    private boolean showFPS = false;
+    private long lastFPSCheck = 0;
+    private int currentFPS = 0;
+    private int frameCount = 0;
+    private boolean useViewportCulling = true;
+    private int cullingMargin = 100;
+    private boolean useImageCaching = true;
+    
+    // Pre-compute flash images for performance
+    private ColorConvertOp flashEffect = new ColorConvertOp(ColorSpace.getInstance(ColorSpace.CS_GRAY), null);
+    private BufferedImage playerFlashImage = null;
+    private BufferedImage[] zombieFlashImages = new BufferedImage[4]; // One for each zombie type
 
     private GameInfo gameInfo;
     private int mouseX = PANEL_WIDTH / 2;
@@ -152,6 +168,9 @@ public class GamePanel extends JPanel implements ActionListener {
                     togglePause();
                 } else if (keyCode == gameInfo.getKeyBinding("debug")) {
                     background.toggleDebugMode();
+                } else if (keyCode == KeyEvent.VK_F1) {
+                    toggleFPSDisplay();
+                    System.out.println("FPS Display: " + (showFPS ? "Enabled" : "Disabled"));
                 }
             }
 
@@ -181,7 +200,8 @@ public class GamePanel extends JPanel implements ActionListener {
                 spawnRandomZombie();
             }
         });
-
+        
+        updateTimerDelay();
         requestFocus();
     }
 
@@ -361,21 +381,33 @@ public class GamePanel extends JPanel implements ActionListener {
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
         Graphics2D g2d = (Graphics2D) g;
+        
+        // Apply rendering hints
+        g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF);
+        g2d.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
 
         // Draw the background
         background.draw(g2d, PANEL_WIDTH, PANEL_HEIGHT, gameInfo.player.x, gameInfo.player.y);
 
         AffineTransform originalTransform = g2d.getTransform();
 
-        // Draw all drops
+        // Calculate viewport bounds (what's visible on screen) with culling margin
+        int viewportMinX = -cullingMargin;
+        int viewportMinY = -cullingMargin;
+        int viewportMaxX = PANEL_WIDTH + cullingMargin;
+        int viewportMaxY = PANEL_HEIGHT + cullingMargin;
+
+        // Draw all drops - with culling
         for (Drop drop : gameInfo.drops) {
-            if (!drop.isCollected() && drop.image != null) {
-                g2d.drawImage(drop.image, (int)drop.x, (int)drop.y, 
-                             drop.width, drop.height, null);
-            } else if (!drop.isCollected()) {
-                // Fallback if image fails to load
-                g2d.setColor(Color.YELLOW);
-                g2d.fillRect((int)drop.x, (int)drop.y, drop.width, drop.height);
+            if (!drop.isCollected() && isEntityVisible(drop, viewportMinX, viewportMinY, viewportMaxX, viewportMaxY)) {
+                if (drop.image != null) {
+                    g2d.drawImage(drop.image, (int)drop.x, (int)drop.y, 
+                                 drop.width, drop.height, null);
+                } else {
+                    // Fallback if image fails to load
+                    g2d.setColor(Color.YELLOW);
+                    g2d.fillRect((int)drop.x, (int)drop.y, drop.width, drop.height);
+                }
             }
         }
 
@@ -398,12 +430,12 @@ public class GamePanel extends JPanel implements ActionListener {
             
             // Apply flash effect if player is flashing
             if (gameInfo.player.isFlashing()) {
-                // Create a white version of the player image
-                ColorConvertOp op = new ColorConvertOp(
-                    ColorSpace.getInstance(ColorSpace.CS_GRAY), null);
-                BufferedImage flashImage = op.filter(gameInfo.player.image, null);
+                // Use pre-cached flash image if available, otherwise create it
+                if (playerFlashImage == null && useImageCaching) {
+                    playerFlashImage = flashEffect.filter(gameInfo.player.image, null);
+                }
                 
-                // Draw with high brightness
+                BufferedImage flashImage = useImageCaching ? playerFlashImage : flashEffect.filter(gameInfo.player.image, null);
                 g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1.0f));
                 g2d.drawImage(flashImage, 0, 0, gameInfo.player.width, gameInfo.player.height, null);
             } else {
@@ -460,63 +492,110 @@ public class GamePanel extends JPanel implements ActionListener {
         }
         g2d.setTransform(originalTransform);
 
-        // Draw all bullets
+        // Draw all bullets - with culling
         for (Bullet bullet : gameInfo.bullets) {
-            if (bullet.image != null) {
-                // Create rotation transform for the bullet
-                AffineTransform bulletTransform = new AffineTransform();
-                bulletTransform.rotate(Math.toRadians(bullet.rotation), bullet.getCenterX(), bullet.getCenterY());
-                g2d.setTransform(bulletTransform);
+            if (isEntityVisible(bullet, viewportMinX, viewportMinY, viewportMaxX, viewportMaxY)) {
+                if (bullet.image != null) {
+                    // Create rotation transform for the bullet
+                    AffineTransform bulletTransform = new AffineTransform();
+                    bulletTransform.rotate(Math.toRadians(bullet.rotation), bullet.getCenterX(), bullet.getCenterY());
+                    g2d.setTransform(bulletTransform);
 
-                g2d.drawImage(bullet.image, (int)bullet.x, (int)bullet.y, 
-                             bullet.width, bullet.height, null);
+                    g2d.drawImage(bullet.image, (int)bullet.x, (int)bullet.y, 
+                                 bullet.width, bullet.height, null);
 
-                // Reset transform after drawing each bullet
-                g2d.setTransform(originalTransform);
-            } else {
-                // Fallback if bullet image fails to load
-                g2d.setColor(Color.BLUE);
-                g2d.fillOval((int)bullet.x, (int)bullet.y, bullet.width, bullet.height);
+                    // Reset transform after drawing each bullet
+                    g2d.setTransform(originalTransform);
+                } else {
+                    // Fallback if bullet image fails to load
+                    g2d.setColor(Color.BLUE);
+                    g2d.fillOval((int)bullet.x, (int)bullet.y, bullet.width, bullet.height);
+                }
             }
         }
 
-        // Draw all zombies
+        // Draw all zombies - with culling
         for (Zombie zombie : gameInfo.zombies) {
-            if (zombie.image != null) {
-                AffineTransform transform = g2d.getTransform();
-                AffineTransform zombieTransform = new AffineTransform();
-                
-                if (zombie.directionX < 0) {
-                    zombieTransform.translate(zombie.x + zombie.width, zombie.y);
-                    zombieTransform.scale(-1, 1);
-                } else {
-                    zombieTransform.translate(zombie.x, zombie.y);
-                }
-                
-                g2d.setTransform(zombieTransform);
-                
-                // Apply flash effect if zombie is flashing
-                if (zombie.isFlashing()) {
-                    // Create white version of zombie
-                    ColorConvertOp op = new ColorConvertOp(
-                        ColorSpace.getInstance(ColorSpace.CS_GRAY), null);
-                    BufferedImage flashImage = op.filter(zombie.image, null);
+            if (isEntityVisible(zombie, viewportMinX, viewportMinY, viewportMaxX, viewportMaxY)) {
+                if (zombie.image != null) {
+                    AffineTransform transform = g2d.getTransform();
+                    AffineTransform zombieTransform = new AffineTransform();
                     
-                    g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1.0f));
-                    g2d.drawImage(flashImage, 0, 0, zombie.width, zombie.height, null);
-                } else {
-                    g2d.drawImage(zombie.image, 0, 0, zombie.width, zombie.height, null);
+                    if (zombie.directionX < 0) {
+                        zombieTransform.translate(zombie.x + zombie.width, zombie.y);
+                        zombieTransform.scale(-1, 1);
+                    } else {
+                        zombieTransform.translate(zombie.x, zombie.y);
+                    }
+                    
+                    g2d.setTransform(zombieTransform);
+                    
+                    // Apply flash effect if zombie is flashing
+                    if (zombie.isFlashing()) {
+                        // Get zombie type to use appropriate cached image
+                        int zombieType = getZombieTypeIndex(zombie);
+                        
+                        // Use pre-cached flash image if available, otherwise create it
+                        if (useImageCaching && zombieFlashImages[zombieType] == null) {
+                            zombieFlashImages[zombieType] = flashEffect.filter(zombie.image, null);
+                        }
+                        
+                        BufferedImage flashImage = useImageCaching ? 
+                            zombieFlashImages[zombieType] : flashEffect.filter(zombie.image, null);
+                        
+                        g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1.0f));
+                        g2d.drawImage(flashImage, 0, 0, zombie.width, zombie.height, null);
+                    } else {
+                        g2d.drawImage(zombie.image, 0, 0, zombie.width, zombie.height, null);
+                    }
+                    
+                    g2d.setTransform(transform);
+                    drawHealthBar(g2d, zombie);
                 }
-                
-                g2d.setTransform(transform);
-                drawHealthBar(g2d, zombie);
             }
         }
 
-        // Draw all active animations
+        // Draw all active animations - with culling
         for (Animation animation : gameInfo.animations) {
-            animation.draw(g2d);
+            if (isEntityVisible(animation, viewportMinX, viewportMinY, viewportMaxX, viewportMaxY)) {
+                animation.draw(g2d);
+            }
         }
+        
+        // Display FPS if enabled
+        if (showFPS) {
+            // Calculate FPS
+            frameCount++;
+            long currentTime = System.currentTimeMillis();
+            double updateInterval = 1000;
+            if (currentTime - lastFPSCheck >= updateInterval) {
+                currentFPS = (int) (frameCount * 1000 / updateInterval);
+                frameCount = 0;
+                lastFPSCheck = currentTime;
+            }
+            
+            // Draw FPS counter
+            g2d.setColor(Color.WHITE);
+            g2d.setFont(new Font("Arial", Font.BOLD, 14));
+            g2d.drawString("FPS: " + currentFPS, PANEL_WIDTH - 100, 20);
+        }
+    }
+    
+    // Helper method to determine zombie type for caching
+    private int getZombieTypeIndex(Zombie zombie) {
+        if (zombie instanceof NormalZombie) return 0;
+        if (zombie instanceof ReptileZombie) return 1;
+        if (zombie instanceof TankZombie) return 2;
+        if (zombie instanceof AcidicZombie) return 3;
+        return 0; // Default to normal zombie
+    }
+    
+    // Helper method for viewport culling
+    private boolean isEntityVisible(Entity entity, int minX, int minY, int maxX, int maxY) {
+        if (!useViewportCulling) return true;
+        
+        return entity.x + entity.width >= minX && entity.x <= maxX &&
+               entity.y + entity.height >= minY && entity.y <= maxY;
     }
 
     // Game update loop
@@ -1020,5 +1099,16 @@ public class GamePanel extends JPanel implements ActionListener {
         
         // Ensure focus returns to game panel
         requestFocus();
+    }
+
+    private void toggleFPSDisplay() {
+        showFPS = !showFPS;
+    }
+    
+    private void updateTimerDelay() {
+        int delay = 1000 / targetFPS;
+        if (gameInfo.gameTimer != null) {
+            gameInfo.gameTimer.setDelay(delay);
+        }
     }
 }

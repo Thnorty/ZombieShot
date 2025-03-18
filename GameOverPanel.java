@@ -1,4 +1,6 @@
+import java.awt.AlphaComposite;
 import java.awt.Color;
+import java.awt.Composite;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics;
@@ -68,12 +70,50 @@ public class GameOverPanel extends JPanel {
         gameOverLabel.setBounds(50, PANEL_HEIGHT/4, PANEL_WIDTH, 80);
         add(gameOverLabel);
         
-        // Score display
-        scoreLabel = new JLabel(String.format(scoreText, gameInfo.currentWave-1, gameInfo.zombiesKilled, gameInfo.player.score));
+        // Score display with background box
+        scoreLabel = new JLabel(String.format(scoreText, gameInfo.currentWave-1, gameInfo.zombiesKilled, gameInfo.player.score)) {
+            @Override
+            protected void paintComponent(Graphics g) {
+                Graphics2D g2d = (Graphics2D) g;
+                
+                // Get text dimensions to size the box properly
+                FontMetrics fm = g2d.getFontMetrics(getFont());
+                String text = getText();
+                int textWidth = fm.stringWidth(text) + 20; // Add padding
+                int textHeight = getHeight();
+                
+                // Create semi-transparent background with rounded corners
+                Composite originalComposite = g2d.getComposite();
+                g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.7f));
+                g2d.setColor(new Color(0, 0, 0));
+                g2d.fillRoundRect(0, 0, textWidth, textHeight, 10, 10);
+                g2d.setComposite(originalComposite);
+                
+                // Draw border for the box
+                g2d.setColor(new Color(180, 180, 180));
+                g2d.drawRoundRect(0, 0, textWidth-1, textHeight-1, 10, 10);
+                
+                // Draw the text
+                g2d.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+                g2d.setColor(Color.WHITE);
+                int textX = 10;
+                int textY = fm.getAscent() + (textHeight - fm.getHeight()) / 2;
+                g2d.drawString(text, textX, textY);
+            }
+            
+            @Override
+            public Dimension getPreferredSize() {
+                FontMetrics fm = getFontMetrics(getFont());
+                String text = getText();
+                int width = fm.stringWidth(text) + 20; // Add padding
+                int height = super.getPreferredSize().height;
+                return new Dimension(width, height);
+            }
+        };
         scoreLabel.setForeground(Color.WHITE);
         scoreLabel.setFont(new Font("Courier New", Font.BOLD, 28));
         scoreLabel.setHorizontalAlignment(SwingConstants.LEFT);
-        scoreLabel.setBounds(50, PANEL_HEIGHT/4 + 100, PANEL_WIDTH - 100, 40);
+        scoreLabel.setBounds(50, PANEL_HEIGHT/4 + 100, PANEL_WIDTH - 100, 60);
         add(scoreLabel);
         
         // Left-align all buttons like MainMenuPanel
