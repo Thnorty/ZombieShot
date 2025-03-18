@@ -6,6 +6,7 @@ import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Clip;
 import javax.sound.sampled.FloatControl;
+import javax.sound.sampled.LineEvent;
 import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.UnsupportedAudioFileException;
 import javax.swing.Timer;
@@ -445,9 +446,11 @@ public class GameInfo {
     public static void playSound(String soundPath) {
         if (soundPath != null) {
             new Thread(() -> {
+                AudioInputStream audioStream = null;
+                Clip clip = null;
                 try {
-                    AudioInputStream audioStream = AudioSystem.getAudioInputStream(new File(soundPath));
-                    Clip clip = AudioSystem.getClip();
+                    audioStream = AudioSystem.getAudioInputStream(new File(soundPath));
+                    clip = AudioSystem.getClip();
                     clip.open(audioStream);
 
                     FloatControl gainControl = (FloatControl) clip.getControl(FloatControl.Type.MASTER_GAIN);
@@ -456,9 +459,32 @@ public class GameInfo {
                         gainControl.setValue(dB);
                     }
 
+                    // Add a listener to close resources when playback completes
+                    final Clip finalClip = clip;
+                    final AudioInputStream finalStream = audioStream;
+                    clip.addLineListener(event -> {
+                        if (event.getType() == LineEvent.Type.STOP) {
+                            finalClip.close();
+                            try {
+                                finalStream.close();
+                            } catch (IOException e) {
+                                System.err.println("Error closing audio stream: " + e.getMessage());
+                            }
+                        }
+                    });
+                    
                     clip.start();
                 } catch (UnsupportedAudioFileException | IOException | LineUnavailableException e) {
                     System.err.println("Error playing sound: " + e.getMessage());
+                    // Clean up resources in case of error
+                    if (clip != null) clip.close();
+                    if (audioStream != null) {
+                        try {
+                            audioStream.close();
+                        } catch (IOException ex) {
+                            System.err.println("Error closing audio stream: " + ex.getMessage());
+                        }
+                    }
                 }
             }).start();
         }
