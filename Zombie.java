@@ -13,6 +13,7 @@ public class Zombie extends Entity {
     protected boolean canAttack = true;
     protected long lastAttackTime = 0;
     protected int score = 100;
+    protected double attackDistancePercent = 0.5;
 
     public Zombie(int x, int y, int health, double speed, double damage, String appearanceImagePath, int score) {
         this(x, y, health, speed, damage, appearanceImagePath);
@@ -43,6 +44,10 @@ public class Zombie extends Entity {
             }
         }
         return canAttack;
+    }
+
+    public boolean canMoveCloser(double distance) {
+        return distance > attackRange * attackDistancePercent;
     }
 
     public void attack() {

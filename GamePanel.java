@@ -782,7 +782,7 @@ public class GamePanel extends JPanel implements ActionListener {
                         // If movement is blocked, stop jumping and try normal movement next frame
                         reptileZombie.isJumping = false;
                     }
-                } else {
+                } else if (zombie.canMoveCloser(distanceToplayer)) {
                     double moveX = dx * zombie.moveSpeed;
                     double moveY = dy * zombie.moveSpeed;
                     
@@ -799,7 +799,7 @@ public class GamePanel extends JPanel implements ActionListener {
                         }
                     }
                 }
-            } else {
+            } else if (zombie.canMoveCloser(distanceToplayer)) {
                 double moveX = dx * zombie.moveSpeed;
                 double moveY = dy * zombie.moveSpeed;
                 
