@@ -32,6 +32,7 @@ public class Bullet extends Entity {
         this.width = bulletSize;
         this.height = bulletSize;
         this.sourceWeapon = sourceWeapon;
+        this.moveSpeed = GameInfo.BULLET_SPEED;
 
         setImage(new File(appearanceImagePath));
     }

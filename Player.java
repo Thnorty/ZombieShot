@@ -9,12 +9,12 @@ public class Player extends Entity {
     private static final int PLAYER_WIDTH = 64;
     private static final int PLAYER_HEIGHT = 64;
     public static final int PLAYER_HEALTH = 100;
+    private static final int FRAME_DELAY = 100;
 
     // Animation fields
     private transient BufferedImage[] walkingFrames;
     private int currentFrame = 0;
     private long lastFrameTime = 0;
-    private static final int FRAME_DELAY = 100;
     private boolean isMoving = false;
     private int selectedCharacter;
 
@@ -31,6 +31,7 @@ public class Player extends Entity {
         this.width = PLAYER_WIDTH;
         this.height = PLAYER_HEIGHT;
         this.health = PLAYER_HEALTH;
+        this.moveSpeed = GameInfo.PLAYER_SPEED;
         this.selectedCharacter = characterNumber;
         String charNumString = characterNumber < 10 ? "0" + characterNumber : String.valueOf(characterNumber);
         this.appearanceImagePath = "assets/Player/char_" + charNumString + "/walking/walking_01.png";

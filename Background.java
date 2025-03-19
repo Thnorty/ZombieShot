@@ -235,12 +235,6 @@ public class Background implements Serializable {
         return true;
     }
 
-    /**
-     * Updates the background position based on player movement
-     * @param dx Change in x position
-     * @param dy Change in y position
-     * @return true if the update was successful, false if blocked
-     */
     public boolean update(double dx, double dy, int playerHeight) {
         if (!isValidMove(dx, dy, playerHeight)) {
             return false;

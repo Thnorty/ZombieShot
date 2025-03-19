@@ -22,6 +22,7 @@ public class Entity implements Serializable {
     protected double rotation = 0;
     protected boolean isFlashing = false;
     protected long flashStartTime = 0;
+    protected double moveSpeed;
     protected static final long FLASH_DURATION = 150;
 
     protected static List<Entity> entities = new ArrayList<>();

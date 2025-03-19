@@ -9,7 +9,6 @@ public class Zombie extends Entity {
     protected int attackRange = 80;
     protected int health;
     protected int maxHealth;
-    protected double moveSpeed;
     protected double damage;
     protected boolean canAttack = true;
     protected long lastAttackTime = 0;

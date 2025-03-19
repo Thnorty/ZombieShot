@@ -34,13 +34,13 @@ public class GameInfo {
     protected int currentZombieIncreasePercent = NORMAL_ZOMBIE_INCREASE_PERCENT;
     protected double currentZombieSpeedMultiplier = NORMAL_ZOMBIE_SPEED_MULTIPLIER;
 
-    protected final int ZOMBIE_INCREASE_PERCENT = 50;
-    protected final float HEALTH_DROP_CHANCE = 0.01f;
-    protected final float AMMO_DROP_CHANCE = 0.3f;
-    protected final float PLAYER_SPEED = 5.0f;
-    protected final float BULLET_SPEED = 20.0f;
-    protected final String BACKGROUND_IMAGE_PATH = "assets/Backgrounds/menu_background.png";
-    protected final String BACKGROUND_MUSIC_PATH = "assets/Musics/";
+    protected static final int ZOMBIE_INCREASE_PERCENT = 50;
+    protected static final float HEALTH_DROP_CHANCE = 0.01f;
+    protected static final float AMMO_DROP_CHANCE = 0.3f;
+    protected static final float PLAYER_SPEED = 5.0f;
+    protected static final float BULLET_SPEED = 20.0f;
+    protected static final String BACKGROUND_IMAGE_PATH = "assets/Backgrounds/menu_background.png";
+    protected static final String BACKGROUND_MUSIC_PATH = "assets/Musics/";
 
     protected Player player;
     protected StatPanel statPanel;

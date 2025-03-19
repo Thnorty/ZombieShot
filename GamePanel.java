@@ -624,10 +624,11 @@ public class GamePanel extends JPanel implements ActionListener {
         double horizontalMovement = 0;
         double verticalMovement = 0;
         
-        if (moveUp) verticalMovement -= gameInfo.PLAYER_SPEED;
-        if (moveDown) verticalMovement += gameInfo.PLAYER_SPEED;
-        if (moveLeft) horizontalMovement -= gameInfo.PLAYER_SPEED;
-        if (moveRight) horizontalMovement += gameInfo.PLAYER_SPEED;
+        Player player = gameInfo.player;
+        if (moveUp) verticalMovement -= player.moveSpeed;
+        if (moveDown) verticalMovement += player.moveSpeed;
+        if (moveLeft) horizontalMovement -= player.moveSpeed;
+        if (moveRight) horizontalMovement += player.moveSpeed;
 
         // Set player animation state based on movement
         boolean isMoving = (horizontalMovement != 0 || verticalMovement != 0);
@@ -642,8 +643,8 @@ public class GamePanel extends JPanel implements ActionListener {
         }
         if (horizontalMovement != 0 || verticalMovement != 0) {
             // Try to update the background position with collision detection
-            boolean moveSuccessful = background.update(horizontalMovement * gameInfo.PLAYER_SPEED, 
-                                                      verticalMovement * gameInfo.PLAYER_SPEED,
+            boolean moveSuccessful = background.update(horizontalMovement * player.moveSpeed, 
+                                                      verticalMovement * player.moveSpeed,
                                                         gameInfo.player.height);
             
             // Only move entities if the player's move was successful
@@ -652,8 +653,8 @@ public class GamePanel extends JPanel implements ActionListener {
                     if (entity instanceof Player || entity instanceof Weapon) {
                         continue;
                     }
-                    entity.x -= horizontalMovement * gameInfo.PLAYER_SPEED;
-                    entity.y -= verticalMovement * gameInfo.PLAYER_SPEED;
+                    entity.x -= horizontalMovement * GameInfo.PLAYER_SPEED;
+                    entity.y -= verticalMovement * GameInfo.PLAYER_SPEED;
                 }
             }
         }
@@ -666,8 +667,8 @@ public class GamePanel extends JPanel implements ActionListener {
 
         for (Bullet bullet : gameInfo.bullets) {
             // Move bullet in its direction
-            bullet.x += bullet.directionX * gameInfo.BULLET_SPEED;
-            bullet.y += bullet.directionY * gameInfo.BULLET_SPEED;
+            bullet.x += bullet.directionX * bullet.moveSpeed;
+            bullet.y += bullet.directionY * bullet.moveSpeed;
             
             // Remove bullets that go off screen
             if (bullet.x < -PANEL_WIDTH || bullet.x > PANEL_WIDTH*2 || bullet.y < -PANEL_HEIGHT || bullet.y > PANEL_HEIGHT*2) {
@@ -749,8 +750,6 @@ public class GamePanel extends JPanel implements ActionListener {
                 if (zombie instanceof AcidicZombie) {
                     AcidicZombie acidicZombie = (AcidicZombie)zombie;
                     Bullet acidBullet = acidicZombie.shootAcid(charCenterX, charCenterY);
-                    acidBullet.setZombieBullet(true);
-                    acidBullet.setDamage(acidicZombie.damage);        
                     gameInfo.bullets.add(acidBullet);
                 } else {
                     gameInfo.player.health -= zombie.damage;
@@ -924,10 +923,10 @@ public class GamePanel extends JPanel implements ActionListener {
     }
 
     private void createLootDrop(Zombie zombie) {
-        if (random.nextFloat() < gameInfo.HEALTH_DROP_CHANCE) {
+        if (random.nextFloat() < GameInfo.HEALTH_DROP_CHANCE) {
             HealthDrop healthDrop = new HealthDrop(zombie.getCenterX(), zombie.getCenterY());
             gameInfo.addDrop(healthDrop);
-        } else if (random.nextFloat() < gameInfo.AMMO_DROP_CHANCE) {
+        } else if (random.nextFloat() < GameInfo.AMMO_DROP_CHANCE) {
             Weapon randomWeapon;
             int randomWeaponVariety;
             if (gameInfo.currentWave == 1) {
