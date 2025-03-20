@@ -695,12 +695,12 @@ public class GamePanel extends JPanel implements ActionListener {
 
                             // Create an explosion
                             int explosionSize = (int) (RocketLauncher.BLAST_RADIUS * 1.5);
-                            Animation explosion = new Animation(
+                            Animation RPGExplosion = new Animation(
                                 zombie.getCenterX() - explosionSize/2,
                                 zombie.getCenterY() - explosionSize/2,
-                                explosionSize, explosionSize, 50, false, "explosion");
-                            explosion.loadFrames("assets/Explosion");
-                            gameInfo.animations.add(explosion);
+                                explosionSize, explosionSize, 50, false, "RPGExplosion");
+                            RPGExplosion.loadFrames("assets/Explosion/RPG");
+                            gameInfo.animations.add(RPGExplosion);
                         } else {
                             zombie.health -= bullet.getDamage();
                             zombie.startFlashEffect();
@@ -710,6 +710,12 @@ public class GamePanel extends JPanel implements ActionListener {
                                 gameInfo.player.score += zombie.score;                
                                 createLootDrop(zombie);
                                 if (zombie instanceof AcidicZombie) {
+                                    Animation blastAnimation = new Animation(
+                                        zombie.getCenterX() - AcidicZombie.BLAST_RADIUS/2,
+                                        zombie.getCenterY() - AcidicZombie.BLAST_RADIUS/2,
+                                        AcidicZombie.BLAST_RADIUS, AcidicZombie.BLAST_RADIUS, 50, false, "AcidicZombieExplosion");
+                                    blastAnimation.loadFrames("assets/Explosion/AcidicZombie");
+                                    gameInfo.animations.add(blastAnimation);
                                     applyBlastDamageToZombies(zombiesToRemove, bullet, zombie, AcidicZombie.BLAST_RADIUS);
                                 }
                             }
@@ -914,6 +920,12 @@ public class GamePanel extends JPanel implements ActionListener {
                     gameInfo.player.score += targetZombie.score;    
                     createLootDrop(targetZombie);
                     if (targetZombie instanceof AcidicZombie) {
+                        Animation blastAnimation = new Animation(
+                            sourceZombie.getCenterX() - blastRadius/2,
+                            sourceZombie.getCenterY() - blastRadius/2,
+                            (int)blastRadius, (int)blastRadius, 50, false, "AcidicZombieExplosion");
+                        blastAnimation.loadFrames("assets/Explosion/AcidicZombie");
+                        gameInfo.animations.add(blastAnimation);
                         applyBlastDamageToZombies(zombiesToRemove, bullet, sourceZombie, AcidicZombie.BLAST_RADIUS);
                     }
                 }
