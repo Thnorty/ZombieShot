@@ -6,7 +6,7 @@ public class AcidicZombie extends Zombie {
 
     public AcidicZombie(int x, int y) {
         super(x, y, 50, 0.5, 10, "assets/Zombies/acidic_zombie.png", 150);
-        attackRange = 400;
+        attackRange = 500;
         attackDistancePercent = 0.75;
     }
     

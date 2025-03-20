@@ -1,8 +1,8 @@
 public class ReptileZombie extends Zombie {
     private static final long JUMP_COOLDOWN = 3000;
-    private static final double JUMP_AWAY_DISTANCE = 200;
+    private static final double JUMP_RANGE = 300;
     protected static final double JUMP_SPEED = 10;
-    protected static final double JUMP_DISTANCE = 300;
+    protected static final double JUMP_DISTANCE = 400;
 
     protected boolean isJumping = false;
     protected double jumpDirectionX = 0;
@@ -27,15 +27,8 @@ public class ReptileZombie extends Zombie {
             dy /= length;
         }
         
-        if (Math.random() < 0.5) {
-            // Left side
-            jumpDirectionX = -dy;
-            jumpDirectionY = dx;
-        } else {
-            // Right side
-            jumpDirectionX = dy;
-            jumpDirectionY = -dx;
-        }
+        jumpDirectionX = dx;
+        jumpDirectionY = dy;
         
         isJumping = true;
         jumpDistanceTraveled = 0;
@@ -55,7 +48,7 @@ public class ReptileZombie extends Zombie {
         
         jumpDistanceTraveled += moveAmount;
         
-        if (jumpDistanceTraveled >= JUMP_AWAY_DISTANCE) {
+        if (jumpDistanceTraveled >= JUMP_RANGE) {
             isJumping = false;
         }
     }

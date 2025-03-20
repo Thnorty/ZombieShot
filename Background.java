@@ -21,6 +21,7 @@ public class Background implements Serializable {
     private static final long serialVersionUID = 1L;
     
     protected final int TILE_SIZE = 64;
+    private final double OBSTACLE_PROBABILITY = 0.25;
     private transient List<BufferedImage> tileImages;
     private double offsetX = 0;
     private double offsetY = 0;
@@ -42,11 +43,6 @@ public class Background implements Serializable {
     private int checkedCellY;
     private boolean lastMoveBlocked = false;
     
-    /**
-     * Creates a background with multiple tile types and specified obstacles
-     * @param backgroundTileImages Array of paths to the background tile images
-     * @param obstacleTilePaths Array of paths to the obstacle tile images
-     */
     public Background(String[] backgroundTileImages, String[] obstacleTilePaths) {
         // Store image paths for later reloading if needed
         this.backgroundImagePaths = backgroundTileImages;
@@ -56,28 +52,17 @@ public class Background implements Serializable {
         loadTileImages(backgroundTileImages, obstacleTilePaths);
         cellPatterns = new HashMap<>();
         obstacleTileIndices = new HashSet<>();
-        
-        // Mark obstacle tiles in the set
-        // Obstacle tiles are loaded after background tiles, so their indices start 
-        // after all background tiles
+
         int obstacleStartIndex = backgroundTileImages.length;
         for (int i = 0; i < obstacleTilePaths.length; i++) {
             obstacleTileIndices.add(obstacleStartIndex + i);
         }
     }
     
-    /**
-     * Toggle debug visualization mode
-     */
     public void toggleDebugMode() {
         debugMode = !debugMode;
     }
     
-    /**
-     * Loads all tile images from the specified paths
-     * @param backgroundPaths Array of paths to the background tile images
-     * @param obstaclePaths Array of paths to the obstacle tile images
-     */
     private void loadTileImages(String[] backgroundPaths, String[] obstaclePaths) {
         tileImages = new ArrayList<>();
         
@@ -107,9 +92,7 @@ public class Background implements Serializable {
         }
     }
     
-    /**
-     * Creates a default tile if no images load successfully
-     */
+
     private void createDefaultTile() {
         BufferedImage defaultTile = new BufferedImage(TILE_SIZE, TILE_SIZE, BufferedImage.TYPE_INT_RGB);
         Graphics2D g = defaultTile.createGraphics();
@@ -123,38 +106,24 @@ public class Background implements Serializable {
         tileImages.add(defaultTile);
     }
     
-    /**
-     * Get a tile index for a specific cell position
-     * If this is a new cell, assign a random tile with
-     * the first tile having a higher chance
-     */
+
     private int getTileForCell(int cellX, int cellY) {
         String key = cellX + "," + cellY;
         if (!cellPatterns.containsKey(key)) {
-            if (random.nextDouble() < 0.7) {
-                cellPatterns.put(key, 0);
-            } else {
+            if (random.nextDouble() < OBSTACLE_PROBABILITY) {
                 cellPatterns.put(key, random.nextInt(tileImages.size()));
+            } else {
+                cellPatterns.put(key, 0);
             }
         }
         return cellPatterns.get(key);
     }
-    /**
-     * Checks if a movement is valid (not into an obstacle)
-     * @param dx Change in x position
-     * @param dy Change in y position
-     * @return true if movement is allowed, false if blocked by obstacle
-     */
+
     public boolean isValidMove(double dx, double dy, int playerHeight) {
         // Calculate future position
         double newOffsetX = offsetX + dx;
         double newOffsetY = offsetY + dy;
-        
-        // The player is at the center of the screen
-        // Since offset coordinates represent the top-left corner of the world relative to the screen,
-        // we need to adjust by half the screen width/height to get the player's world position
-        // We want the cell that the player's center would be in after the movement
-        
+                
         // Get the screen dimensions from the GamePanel class
         int screenWidth = GameFrame.WIDTH;
         int screenHeight = GameFrame.HEIGHT - StatPanel.HEIGHT;
@@ -259,14 +228,6 @@ public class Background implements Serializable {
         return true;
     }
     
-    /**
-     * Draws individual tiles with different patterns
-     * @param g2d Graphics context to draw on
-     * @param width Width of the panel
-     * @param height Height of the panel
-     * @param playerX Optional player X position (screen coordinates)
-     * @param playerY Optional player Y position (screen coordinates)
-     */
     public void draw(Graphics2D g2d, int width, int height, double playerX, double playerY) {
         if (tileImages.isEmpty()) return;
         
@@ -334,8 +295,7 @@ public class Background implements Serializable {
             g2d.drawString("Offset: " + String.format("%.1f, %.1f", offsetX, offsetY), 10, 20);
             g2d.drawString("Player Cell: " + checkedCellX + "," + checkedCellY, 10, 40);
             g2d.drawString("Player Screen Position: " + String.format("%.1f, %.1f", playerX, playerY), 10, 60);
-            g2d.drawString("Player World Position: " + 
-                String.format("%.1f, %.1f", playerX - offsetX, playerY - offsetY), 10, 80);
+            g2d.drawString("Player World Position: " + String.format("%.1f, %.1f", playerX - offsetX, playerY - offsetY), 10, 80);
             g2d.drawString("Last Move Blocked: " + lastMoveBlocked, 10, 100);
             
             // Draw player hitbox
@@ -345,54 +305,31 @@ public class Background implements Serializable {
         }
     }
     
-    /**
-     * Get current offset X position
-     */
     public double getOffsetX() {
         return offsetX;
     }
     
-    /**
-     * Get current offset Y position
-     */
     public double getOffsetY() {
         return offsetY;
     }
-    
-    /**
-     * Get cell X coordinate from screen X position
-     */
+
     public int getCellXFromScreenPos(int screenX) {
         return (int)Math.floor((screenX + offsetX) / TILE_SIZE);
     }
     
-    /**
-     * Get cell Y coordinate from screen Y position
-     */
     public int getCellYFromScreenPos(int screenY) {
         return (int)Math.floor((screenY + offsetY) / TILE_SIZE);
     }
     
-    /**
-     * Set the background offset directly
-     * @param x The new X offset
-     * @param y The new Y offset
-     */
     public void setOffset(double x, double y) {
         this.offsetX = x;
         this.offsetY = y;
     }
 
-    /**
-     * Custom serialization to handle transient fields
-     */
     private void writeObject(ObjectOutputStream out) throws IOException {
         out.defaultWriteObject();
     }
 
-    /**
-     * Custom deserialization to reload transient fields
-     */
     private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
         in.defaultReadObject();
         
