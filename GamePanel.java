@@ -90,8 +90,7 @@ public class GamePanel extends JPanel implements ActionListener {
                 mouseY = evt.getY();
                 
                 // Calculate angle for gun rotation
-                double angle = Math.atan2(mouseY - gameInfo.player.y - gameInfo.player.height/2, 
-                                mouseX - gameInfo.player.x - gameInfo.player.width/2);
+                double angle = Math.atan2(mouseY - gameInfo.player.y - gameInfo.player.height/2, mouseX - gameInfo.player.x - gameInfo.player.width/2);
                 gameInfo.player.rotation = Math.toDegrees(angle);
                 
                 // Track facing direction for player flipping
@@ -169,9 +168,8 @@ public class GamePanel extends JPanel implements ActionListener {
                     togglePause();
                 } else if (keyCode == gameInfo.getKeyBinding("debug")) {
                     background.toggleDebugMode();
-                } else if (keyCode == KeyEvent.VK_F1) {
+                } else if (keyCode == gameInfo.getKeyBinding("toggleFPS")) {
                     toggleFPSDisplay();
-                    System.out.println("FPS Display: " + (showFPS ? "Enabled" : "Disabled"));
                 }
             }
 
@@ -388,7 +386,7 @@ public class GamePanel extends JPanel implements ActionListener {
         g2d.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
 
         // Draw the background
-        background.draw(g2d, PANEL_WIDTH, PANEL_HEIGHT, gameInfo.player.x, gameInfo.player.y);
+        background.draw(g2d, PANEL_WIDTH, PANEL_HEIGHT, gameInfo.player);
 
         AffineTransform originalTransform = g2d.getTransform();
 

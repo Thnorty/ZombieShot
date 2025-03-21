@@ -81,6 +81,7 @@ public class GameInfo {
         keyBindings.put("weapon4", KeyEvent.VK_4);
         keyBindings.put("weapon5", KeyEvent.VK_5);
         keyBindings.put("pause", KeyEvent.VK_ESCAPE);
+        keyBindings.put("toggleFPS", KeyEvent.VK_F1);
         keyBindings.put("debug", KeyEvent.VK_F3);
 
         try {

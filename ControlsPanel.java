@@ -145,6 +145,7 @@ public class ControlsPanel extends JPanel {
         gbc.gridy = 1;
         mainPanel.add(createSectionPanel("Game Controls", new String[][]{
             {"pause", "Pause Game"},
+            {"toggleFPS", "Toggle FPS Display"},
             {"debug", "Toggle Debug Mode"}
         }), gbc);
         
@@ -210,7 +211,7 @@ public class ControlsPanel extends JPanel {
                     awaitingRebind = e.getActionCommand();
                     keyLabel.setText("Press key...");
                     updateRebindButtonStates();
-                    requestFocus(); // Get focus to receive key events
+                    requestFocus();
                 }
             });
             

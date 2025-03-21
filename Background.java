@@ -228,7 +228,7 @@ public class Background implements Serializable {
         return true;
     }
     
-    public void draw(Graphics2D g2d, int width, int height, double playerX, double playerY) {
+    public void draw(Graphics2D g2d, int width, int height, Player player) {
         if (tileImages.isEmpty()) return;
         
         // Calculate visible range
@@ -294,14 +294,13 @@ public class Background implements Serializable {
             g2d.setFont(new Font("Arial", Font.BOLD, 12));
             g2d.drawString("Offset: " + String.format("%.1f, %.1f", offsetX, offsetY), 10, 20);
             g2d.drawString("Player Cell: " + checkedCellX + "," + checkedCellY, 10, 40);
-            g2d.drawString("Player Screen Position: " + String.format("%.1f, %.1f", playerX, playerY), 10, 60);
-            g2d.drawString("Player World Position: " + String.format("%.1f, %.1f", playerX - offsetX, playerY - offsetY), 10, 80);
-            g2d.drawString("Last Move Blocked: " + lastMoveBlocked, 10, 100);
+            g2d.drawString("Player Screen Position: " + String.format("%.1f, %.1f", player.x, player.y), 10, 60);
+            g2d.drawString("Player World Position: " + String.format("%.1f, %.1f", player.x - offsetX, player.y - offsetY), 10, 80);
             
             // Draw player hitbox
             g2d.setStroke(new BasicStroke(1));
             g2d.setColor(new Color(0, 255, 255, 150)); // Cyan for player hitbox
-            g2d.drawRect((int)playerX - 16, (int)playerY - 16, 32, 32); // Assuming 32x32 player size
+            g2d.drawRect((int)player.x, (int)player.y, player.width, player.height);
         }
     }
     
