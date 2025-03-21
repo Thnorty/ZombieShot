@@ -22,7 +22,7 @@ public class GameInfo {
 
     protected final int NORMAL_ZOMBIE_SPAWN_RATE = 400;
     protected final int HARD_ZOMBIE_SPAWN_RATE = 200;
-    protected final int NORMAL_ZOMBIES_PER_WAVE = 1;
+    protected final int NORMAL_ZOMBIES_PER_WAVE = 10;
     protected final int HARD_ZOMBIES_PER_WAVE = 15;
     protected final int NORMAL_ZOMBIE_INCREASE_PERCENT = 50;
     protected final int HARD_ZOMBIE_INCREASE_PERCENT = 75;

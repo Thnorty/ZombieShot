@@ -12,6 +12,7 @@ public class ReptileZombie extends Zombie {
 
     public ReptileZombie(int x, int y) {
         super(x, y, 50, 2, 10, "assets/Zombies/reptile_zombie.png", 75);
+        lastJumpTime = System.currentTimeMillis();
     }
 
     // Add a method to set random jump direction
