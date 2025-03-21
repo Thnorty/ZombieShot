@@ -18,6 +18,7 @@ public class Zombie extends Entity {
     public Zombie(int x, int y, int health, double speed, double damage, String appearanceImagePath, int score) {
         this(x, y, health, speed, damage, appearanceImagePath);
         this.score = score;
+        lastAttackTime = System.currentTimeMillis();
     }
 
     public Zombie(int x, int y, int health, double speed, double damage, String appearanceImagePath) {
