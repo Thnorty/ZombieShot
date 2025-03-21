@@ -87,4 +87,21 @@ public class Weapon extends Entity {
     public void playReloadSound() {
         GameInfo.playSound(reloadSoundPath);
     }
+    
+    public void updateForDifficulty(GameInfo.GameDifficulty difficulty) {
+        // Update fire delay
+        long baseFireDelay = 60000 / (60000 / fireDelay);
+        
+        if (difficulty == GameInfo.GameDifficulty.HARD) {
+            fireDelay = baseFireDelay / 2;
+        } else {
+            fireDelay = baseFireDelay;
+        }
+
+        // Update max ammo in clip
+        if (difficulty == GameInfo.GameDifficulty.HARD) {
+            maxAmmoInClip *= 2;
+            currentAmmo *= 2;
+        }
+    }
 }

@@ -123,16 +123,30 @@ public class GameInfo {
             currentZombiesPerWave = HARD_ZOMBIES_PER_WAVE;
             currentZombieIncreasePercent = HARD_ZOMBIE_INCREASE_PERCENT;
             currentZombieSpeedMultiplier = HARD_ZOMBIE_SPEED_MULTIPLIER;
+            
             for (Zombie zombie : zombies) {
                 zombie.moveSpeed *= HARD_ZOMBIE_SPEED_MULTIPLIER / NORMAL_ZOMBIE_SPEED_MULTIPLIER;
+            }
+            
+            if (player != null) {
+                for (Weapon weapon : player.weapons) {
+                    weapon.updateForDifficulty(difficulty);
+                }
             }
         } else {
             currentZombieSpawnRate = NORMAL_ZOMBIE_SPAWN_RATE;
             currentZombiesPerWave = NORMAL_ZOMBIES_PER_WAVE;
             currentZombieIncreasePercent = NORMAL_ZOMBIE_INCREASE_PERCENT;
             currentZombieSpeedMultiplier = NORMAL_ZOMBIE_SPEED_MULTIPLIER;
+            
             for (Zombie zombie : zombies) {
                 zombie.moveSpeed *= NORMAL_ZOMBIE_SPEED_MULTIPLIER / HARD_ZOMBIE_SPEED_MULTIPLIER;
+            }
+            
+            if (player != null) {
+                for (Weapon weapon : player.weapons) {
+                    weapon.updateForDifficulty(difficulty);
+                }
             }
         }
         
@@ -194,6 +208,12 @@ public class GameInfo {
         player.weapons.add(new Sniper());
         player.weapons.add(new RocketLauncher());
         player.currentWeapon = player.weapons.get(0);
+        
+        if (currentDifficulty == GameDifficulty.HARD) {
+            for (Weapon weapon : player.weapons) {
+                weapon.updateForDifficulty(currentDifficulty);
+            }
+        }
 
         currentWave = 1;
         zombiesKilled = 0;

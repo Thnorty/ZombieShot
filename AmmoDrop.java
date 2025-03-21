@@ -12,7 +12,7 @@ public class AmmoDrop extends Drop {
         this.sourceWeapon = sourceWeapon;
     }
 
-    public AmmoDrop(double x, double y, Weapon sourceWeapon) {
+    public AmmoDrop(double x, double y, Weapon sourceWeapon, GameInfo gameInfo) {
         super(x, y, sourceWeapon.appearanceImagePath);
         int baseAmmo = sourceWeapon.maxAmmoInClip;
         int minAmount = (int)(baseAmmo * (1 - VARIATION_PERCENTAGE));
@@ -21,6 +21,11 @@ public class AmmoDrop extends Drop {
         minAmount = Math.max(1, minAmount);
         
         this.ammoAmount = minAmount + random.nextInt(maxAmount - minAmount + 1);
+        
+        if (gameInfo.currentDifficulty == GameInfo.GameDifficulty.HARD) {
+            this.ammoAmount *= 2;
+        }
+        
         this.sourceWeapon = sourceWeapon;
     }
 

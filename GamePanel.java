@@ -967,7 +967,7 @@ public class GamePanel extends JPanel implements ActionListener {
                 } else {
                     randomWeapon = new RocketLauncher();
                 }
-                AmmoDrop ammoDrop = new AmmoDrop(zombie.getCenterX(), zombie.getCenterY(), randomWeapon);
+                AmmoDrop ammoDrop = new AmmoDrop(zombie.getCenterX(), zombie.getCenterY(), randomWeapon, gameInfo);
                 gameInfo.addDrop(ammoDrop);
             }
         }
