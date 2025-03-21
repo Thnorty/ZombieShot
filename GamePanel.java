@@ -21,6 +21,7 @@ import java.awt.Font;
 import java.awt.AlphaComposite;
 import java.awt.Color;
 import java.awt.RenderingHints;
+import java.awt.BasicStroke;
 
 public class GamePanel extends JPanel implements ActionListener {
     private final int PANEL_WIDTH = GameFrame.WIDTH;
@@ -33,7 +34,7 @@ public class GamePanel extends JPanel implements ActionListener {
     private int currentFPS = 0;
     private int frameCount = 0;
     private boolean useViewportCulling = true;
-    private int cullingMargin = 100;
+    private int cullingMargin = 0;
     private boolean useImageCaching = true;
     
     // Pre-compute flash images for performance
@@ -561,6 +562,9 @@ public class GamePanel extends JPanel implements ActionListener {
                 animation.draw(g2d);
             }
         }
+        
+        // Draw lines from player to zombies
+        drawZombieIndicators(g2d);
         
         // Display FPS if enabled
         if (showFPS) {
@@ -1121,5 +1125,56 @@ public class GamePanel extends JPanel implements ActionListener {
         if (gameInfo.gameTimer != null) {
             gameInfo.gameTimer.setDelay(delay);
         }
+    }
+    
+    private void drawZombieIndicators(Graphics2D g2d) {
+        g2d.setColor(Color.RED);
+        g2d.setStroke(new BasicStroke(2));
+        
+        // Get player center position
+        double playerCenterX = gameInfo.player.getCenterX();
+        double playerCenterY = gameInfo.player.getCenterY();
+        
+        for (Zombie zombie : gameInfo.zombies) {
+            if (isEntityVisible(zombie, 0, 0, PANEL_WIDTH, PANEL_HEIGHT)) {
+                continue;
+            }
+            double zombieCenterX = zombie.getCenterX();
+            double zombieCenterY = zombie.getCenterY();
+        
+            double dirX = zombieCenterX - playerCenterX;
+            double dirY = zombieCenterY - playerCenterY;
+            
+            double length = Math.sqrt(dirX * dirX + dirY * dirY);
+            dirX /= length;
+            dirY /= length;
+            
+            double startX = playerCenterX + dirX * 100;
+            double startY = playerCenterY + dirY * 100;
+            
+            int arrowLength = 15;
+            double angle = Math.atan2(dirY, dirX);
+            
+            // Calculate arrow points
+            int[] xPoints = new int[3];
+            int[] yPoints = new int[3];
+            
+            // Arrow tip is at line start (near player)
+            xPoints[0] = (int)startX;
+            yPoints[0] = (int)startY;
+            
+            // Calculate the two base points of the arrow
+            xPoints[1] = (int)(startX - arrowLength * Math.cos(angle - Math.PI/6));
+            yPoints[1] = (int)(startY - arrowLength * Math.sin(angle - Math.PI/6));
+            
+            xPoints[2] = (int)(startX - arrowLength * Math.cos(angle + Math.PI/6));
+            yPoints[2] = (int)(startY - arrowLength * Math.sin(angle + Math.PI/6));
+            
+            // Fill the arrow
+            g2d.fillPolygon(xPoints, yPoints, 3);
+        }
+        
+        // Reset stroke to default
+        g2d.setStroke(new BasicStroke(1));
     }
 }
