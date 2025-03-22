@@ -173,6 +173,8 @@ public class Zombie extends Entity {
         this.health = this.maxHealth;
         this.canAttack = true;
         this.lastAttackTime = System.currentTimeMillis();
-        setImage(new File(appearanceImagePath));
+        if (image == null) {
+            setImage(new File(appearanceImagePath));
+        }
     }
 }
