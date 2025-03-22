@@ -18,7 +18,6 @@ public class Bullet extends Entity {
 
     public static class Pool {
         private static final int INITIAL_POOL_SIZE = 100;
-        private static Pool instance;
         
         private static List<Bullet> availableBullets;
 
@@ -29,17 +28,9 @@ public class Bullet extends Entity {
             for (int i = 0; i < INITIAL_POOL_SIZE; i++) {
                 availableBullets.add(new Bullet(0, 0, null));
             }
-            instance = new Pool();
         }
         
-        public static Pool getInstance() {
-            if (instance == null) {
-                instance = new Pool();
-            }
-            return instance;
-        }
-        
-        public Bullet getBullet(double x, double y, Weapon sourceWeapon) {
+        public static Bullet getBullet(double x, double y, Weapon sourceWeapon) {
             Bullet bullet;
             
             if (availableBullets.isEmpty()) {

@@ -250,13 +250,13 @@ public class GamePanel extends JPanel implements ActionListener {
         Zombie newZombie;
 
         if (randomNumber == 0) {
-            newZombie = new NormalZombie(x, y);
+            newZombie = Zombie.Pool.getNormalZombie(x, y);
         } else if (randomNumber == 1) {
-            newZombie = new ReptileZombie(x, y);
+            newZombie = Zombie.Pool.getReptileZombie(x, y);
         } else if (randomNumber == 2) {
-            newZombie = new TankZombie(x, y);
+            newZombie = Zombie.Pool.getTankZombie(x, y);
         } else {
-            newZombie = new AcidicZombie(x, y);
+            newZombie = Zombie.Pool.getAcidicZombie(x, y);
         }
 
         newZombie.moveSpeed *= gameInfo.currentZombieSpeedMultiplier;
@@ -341,7 +341,7 @@ public class GamePanel extends JPanel implements ActionListener {
             double startAngle = currentWeapon.rotation - (spreadAngle * (bulletCount - 1) / 2);
             
             for (int i = 0; i < bulletCount; i++) {
-                Bullet bullet = Bullet.Pool.getInstance().getBullet(centerX, centerY, currentWeapon);
+                Bullet bullet = Bullet.Pool.getBullet(centerX, centerY, currentWeapon);
                 
                 // Calculate angle for this bullet
                 double bulletAngle = startAngle + (spreadAngle * i);
@@ -354,7 +354,7 @@ public class GamePanel extends JPanel implements ActionListener {
                 gameInfo.bullets.add(bullet);
             }
         } else {
-            Bullet bullet = Bullet.Pool.getInstance().getBullet(centerX, centerY, currentWeapon);
+            Bullet bullet = Bullet.Pool.getBullet(centerX, centerY, currentWeapon);
 
             double shootingAngleOffset = 0;
             if (currentWeapon != null) {
@@ -887,14 +887,17 @@ public class GamePanel extends JPanel implements ActionListener {
         // Remove animations that have finished
         gameInfo.animations.removeAll(animationsToRemove);
 
-        // Remove bullets that went off screen or hit zombies and return them to pool
+        // Remove bullets that are off screen or have hit something
         for (Bullet bullet : bulletsToRemove) {
             gameInfo.bullets.remove(bullet);
             Bullet.Pool.returnBullet(bullet);
         }
-        // Remove zombies that were hit
 
-        gameInfo.zombies.removeAll(zombiesToRemove);
+        // Remove zombies that were hit
+        for (Zombie zombie : zombiesToRemove) {
+            gameInfo.zombies.remove(zombie);
+            Zombie.Pool.returnZombie(zombie);
+        }
 
         // Remove collected drops
         gameInfo.drops.removeAll(dropsToRemove);
