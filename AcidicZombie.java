@@ -11,7 +11,7 @@ public class AcidicZombie extends Zombie {
     }
     
     public Bullet shootAcid(double playerX, double playerY) {
-        Bullet acidBullet = new Bullet(this.getCenterX(), this.getCenterY(), null);
+        Bullet acidBullet = Bullet.Pool.getInstance().getBullet(this.getCenterX(), this.getCenterY(), null);
         
         acidBullet.appearanceImagePath = "assets/Laser Sprites/09.png";
         acidBullet.setImage(new File(acidBullet.appearanceImagePath));

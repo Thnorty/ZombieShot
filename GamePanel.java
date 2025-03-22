@@ -341,7 +341,7 @@ public class GamePanel extends JPanel implements ActionListener {
             double startAngle = currentWeapon.rotation - (spreadAngle * (bulletCount - 1) / 2);
             
             for (int i = 0; i < bulletCount; i++) {
-                Bullet bullet = new Bullet(centerX, centerY, currentWeapon);
+                Bullet bullet = Bullet.Pool.getInstance().getBullet(centerX, centerY, currentWeapon);
                 
                 // Calculate angle for this bullet
                 double bulletAngle = startAngle + (spreadAngle * i);
@@ -354,7 +354,7 @@ public class GamePanel extends JPanel implements ActionListener {
                 gameInfo.bullets.add(bullet);
             }
         } else {
-            Bullet bullet = new Bullet(centerX, centerY, currentWeapon);
+            Bullet bullet = Bullet.Pool.getInstance().getBullet(centerX, centerY, currentWeapon);
 
             double shootingAngleOffset = 0;
             if (currentWeapon != null) {
@@ -886,10 +886,16 @@ public class GamePanel extends JPanel implements ActionListener {
 
         // Remove animations that have finished
         gameInfo.animations.removeAll(animationsToRemove);
-        // Remove bullets that went off screen or hit zombies
-        gameInfo.bullets.removeAll(bulletsToRemove);
+
+        // Remove bullets that went off screen or hit zombies and return them to pool
+        for (Bullet bullet : bulletsToRemove) {
+            gameInfo.bullets.remove(bullet);
+            Bullet.Pool.returnBullet(bullet);
+        }
         // Remove zombies that were hit
+
         gameInfo.zombies.removeAll(zombiesToRemove);
+
         // Remove collected drops
         gameInfo.drops.removeAll(dropsToRemove);
 
