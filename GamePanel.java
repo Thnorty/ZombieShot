@@ -250,13 +250,13 @@ public class GamePanel extends JPanel implements ActionListener {
         Zombie newZombie;
 
         if (randomNumber == 0) {
-            newZombie = Zombie.Pool.getNormalZombie(x, y);
+            newZombie = new NormalZombie(x, y);
         } else if (randomNumber == 1) {
-            newZombie = Zombie.Pool.getReptileZombie(x, y);
+            newZombie = new ReptileZombie(x, y);
         } else if (randomNumber == 2) {
-            newZombie = Zombie.Pool.getTankZombie(x, y);
+            newZombie = new TankZombie(x, y);
         } else {
-            newZombie = Zombie.Pool.getAcidicZombie(x, y);
+            newZombie = new AcidicZombie(x, y);
         }
 
         newZombie.moveSpeed *= gameInfo.currentZombieSpeedMultiplier;
@@ -556,7 +556,7 @@ public class GamePanel extends JPanel implements ActionListener {
 
         // Draw all active animations - with culling
         for (Animation animation : gameInfo.animations) {
-            if (isEntityVisible(animation, viewportMinX, viewportMinY, viewportMaxX, viewportMaxY)) {
+            if (isEntityVisible(animation, viewportMinX-animation.getWidth(), viewportMinY-animation.getHeight(), viewportMaxX+animation.getWidth(), viewportMaxY+animation.getHeight())) {
                 animation.draw(g2d);
             }
         }
@@ -896,7 +896,6 @@ public class GamePanel extends JPanel implements ActionListener {
         // Remove zombies that were hit
         for (Zombie zombie : zombiesToRemove) {
             gameInfo.zombies.remove(zombie);
-            Zombie.Pool.returnZombie(zombie);
         }
 
         // Remove collected drops
